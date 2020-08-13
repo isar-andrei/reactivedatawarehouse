@@ -28,7 +28,7 @@ public class PostgresConfig extends AbstractR2dbcConfiguration {
                 PostgresqlConnectionConfiguration.builder()
                         .host("localhost")
                         .username("postgres")
-                        .password("andrei15")
+                        .password("")
                         .database("datawarehouse")
                        // .sslMode(SSLMode.REQUIRE)
                         .build());
