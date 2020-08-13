@@ -16,7 +16,7 @@ public class UserEtl {
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
-    @PostMapping("/etl/users/populate")
+    @PostMapping("/etl/users")
     public Flux<User> insert() {
         return readWebClient.get()
                 .uri("/api/users")
@@ -42,7 +42,6 @@ public class UserEtl {
                                 clientResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
                             }
                             return clientResponse.bodyToMono(User.class);
-                        }))
-                .log();
+                        }));
     }
 }

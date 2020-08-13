@@ -39,7 +39,7 @@ public class DietServiceImpl implements DietService {
     @Override
     public Mono<Void> delete(Integer id) {
         return get(id)
-                .flatMap(x -> repository.deleteById(x.getId()));
+                .flatMap(diet -> repository.deleteById(diet.getId()));
     }
 
     @Override

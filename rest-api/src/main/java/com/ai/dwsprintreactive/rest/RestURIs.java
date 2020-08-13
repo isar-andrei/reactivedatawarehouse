@@ -8,6 +8,8 @@ public class RestURIs {
 
     public final static String NUTRITION_URI = PREFIX + "/nutritions";
 
+    public final static String EXERCISE_URI = PREFIX + "/exercises";
+
     public final static String USER_URI = PREFIX + "/users";
 
     public final static String TIME_URI = PREFIX + "/times";

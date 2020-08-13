@@ -15,7 +15,7 @@ public interface NutritionService {
 
     Mono<Nutrition> getByUuid(UUID uuid);
 
-    Mono<Nutrition> update(Integer id, Nutrition entity);
+    Mono<Nutrition> update(Integer id, Nutrition differentNutrition);
 
     Mono<Void> delete(Integer id);
 

@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
-public class FoodEtl {
+public class NutritionEtl {
 
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
-    @PostMapping("/etl/foods/populate")
+    @PostMapping("/etl/nutritions")
     public Flux<Food> insert() {
         return readWebClient.get()
                 .uri("/api/foods")

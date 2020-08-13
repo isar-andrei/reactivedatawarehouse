@@ -18,12 +18,12 @@ import java.util.Optional;
 
 @RestController
 @Slf4j
-public class FoodEatenEtl {
+public class DietEtl {
 
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
-    @PostMapping("/etl/diet/populate")
+    @PostMapping("/etl/diets")
     public Flux<Diet> insert(
             @RequestParam(value = "starting") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starting,
             @RequestParam(value = "ending", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> ending

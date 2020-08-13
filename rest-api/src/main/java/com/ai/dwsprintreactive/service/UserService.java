@@ -17,7 +17,7 @@ public interface UserService {
 
     Mono<User> getByUuid(UUID uuid);
 
-    Mono<User> update(Integer id, User entity);
+    Mono<User> update(Integer id, User differentUser);
 
     Mono<Void> delete(Integer id);
 

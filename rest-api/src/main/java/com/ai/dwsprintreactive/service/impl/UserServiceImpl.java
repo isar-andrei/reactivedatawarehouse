@@ -36,20 +36,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> update(Integer id, User entity) {
+    public Mono<User> update(Integer id, User differentUser) {
         return get(id)
-                .map(x -> {
-                    Integer userId = x.getId();
-                    UUID uuid = x.getUuid();
-                    String firstName = entity.getFirstName() != null ? entity.getFirstName() : x.getFirstName();
-                    String lastName = entity.getLastName() != null ? entity.getLastName() : x.getLastName();
-                    Double weight = entity.getWeight() != null ? entity.getWeight() : x.getWeight();
-                    Double height = entity.getHeight() != null ? entity.getHeight() : x.getHeight();
-                    String gender = entity.getGender() != null ? entity.getGender() : x.getGender();
-                    LocalDate birthday = entity.getBirthday() != null ? entity.getBirthday() : x.getBirthday();
-                    String username = entity.getUsername() != null ? entity.getUsername() : x.getUsername();
-                    String email = entity.getEmail()!= null ? entity.getEmail() : x.getEmail();
-                    LocalDateTime createdAt = entity.getCreatedAt() != null ? entity.getCreatedAt() : x.getCreatedAt();
+                .map(existingUser -> {
+                    Integer userId = existingUser.getId();
+                    UUID uuid = existingUser.getUuid();
+                    String firstName = differentUser.getFirstName() != null ? differentUser.getFirstName() : existingUser.getFirstName();
+                    String lastName = differentUser.getLastName() != null ? differentUser.getLastName() : existingUser.getLastName();
+                    Double weight = differentUser.getWeight() != null ? differentUser.getWeight() : existingUser.getWeight();
+                    Double height = differentUser.getHeight() != null ? differentUser.getHeight() : existingUser.getHeight();
+                    String gender = differentUser.getGender() != null ? differentUser.getGender() : existingUser.getGender();
+                    LocalDate birthday = differentUser.getBirthday() != null ? differentUser.getBirthday() : existingUser.getBirthday();
+                    String username = differentUser.getUsername() != null ? differentUser.getUsername() : existingUser.getUsername();
+                    String email = differentUser.getEmail() != null ? differentUser.getEmail() : existingUser.getEmail();
+                    LocalDateTime createdAt = differentUser.getCreatedAt() != null ? differentUser.getCreatedAt() : existingUser.getCreatedAt();
 
                     return User.builder()
                             .id(userId).uuid(uuid).firstName(firstName).lastName(lastName)
@@ -64,19 +64,19 @@ public class UserServiceImpl implements UserService {
     public Mono<Void> delete(Integer id) {
         return repository
                 .findById(id)
-                .flatMap(f -> repository.deleteById(f.getId()));
+                .flatMap(user -> repository.deleteById(user.getId()));
     }
 
     @Override
     public Mono<User> create(UUID uuid, String firstName, String lastName, Double weight, Double height,
                              String gender, LocalDate birthday, String username, String email) {
 
-        User entity = User.builder()
+        User user = User.builder()
                 .uuid(uuid).firstName(firstName).lastName(lastName)
                 .weight(weight).height(height).gender(gender)
                 .birthday(birthday).username(username).email(email)
                 .build();
 
-        return repository.save(entity);
+        return repository.save(user);
     }
 }

@@ -36,20 +36,20 @@ public class NutritionServiceImpl implements NutritionService {
     }
 
     @Override
-    public Mono<Nutrition> update(Integer id, Nutrition entity) {
+    public Mono<Nutrition> update(Integer id, Nutrition differentNutrition) {
         return get(id)
-                .map(x -> {
-                    Integer nutritionId = x.getId();
-                    UUID nutritionUuid = x.getUuid();
-                    String name = entity.getName() != null ? entity.getName() : x.getName();
-                    Double calories = entity.getCalories() != null ? entity.getCalories() : x.getCalories();
-                    Double fat = entity.getFat() != null ? entity.getFat() : x.getFat();
-                    Double saturatedFat = entity.getSaturatedFat() != null ? entity.getSaturatedFat() : x.getSaturatedFat();
-                    Double carbohydrates = entity.getCarbohydrates() != null ? entity.getCarbohydrates() : x.getCarbohydrates();
-                    Double fiber = entity.getFiber() != null ? entity.getFiber() : x.getFiber();
-                    Double sugar = entity.getSugar() != null ? entity.getSugar() : x.getSugar();
-                    Double protein = entity.getProtein() != null ? entity.getProtein() : x.getProtein();
-                    Double sodium = entity.getSodium() != null ? entity.getSodium() : x.getSodium();
+                .map(existingNutrition -> {
+                    Integer nutritionId = existingNutrition.getId();
+                    UUID nutritionUuid = existingNutrition.getUuid();
+                    String name = differentNutrition.getName() != null ? differentNutrition.getName() : existingNutrition.getName();
+                    Double calories = differentNutrition.getCalories() != null ? differentNutrition.getCalories() : existingNutrition.getCalories();
+                    Double fat = differentNutrition.getFat() != null ? differentNutrition.getFat() : existingNutrition.getFat();
+                    Double saturatedFat = differentNutrition.getSaturatedFat() != null ? differentNutrition.getSaturatedFat() : existingNutrition.getSaturatedFat();
+                    Double carbohydrates = differentNutrition.getCarbohydrates() != null ? differentNutrition.getCarbohydrates() : existingNutrition.getCarbohydrates();
+                    Double fiber = differentNutrition.getFiber() != null ? differentNutrition.getFiber() : existingNutrition.getFiber();
+                    Double sugar = differentNutrition.getSugar() != null ? differentNutrition.getSugar() : existingNutrition.getSugar();
+                    Double protein = differentNutrition.getProtein() != null ? differentNutrition.getProtein() : existingNutrition.getProtein();
+                    Double sodium = differentNutrition.getSodium() != null ? differentNutrition.getSodium() : existingNutrition.getSodium();
 
                     return new Nutrition(nutritionId, nutritionUuid, name, calories, fat, saturatedFat, carbohydrates, fiber, sugar, protein, sodium);
                 })
@@ -59,19 +59,19 @@ public class NutritionServiceImpl implements NutritionService {
     @Override
     public Mono<Void> delete(Integer id) {
         return get(id)
-                .flatMap(x -> repository.deleteById(x.getId())).log();
+                .flatMap(x -> repository.deleteById(x.getId()));
     }
 
     @Override
     public Mono<Nutrition> create(UUID uuid, String name, Double calories, Double fat, Double saturatedFat, Double carbohydrates,
                                   Double fiber, Double sugar, Double protein, Double sodium) {
 
-        Nutrition entity = Nutrition.builder()
+        Nutrition nutrition = Nutrition.builder()
                 .uuid(uuid).name(name).calories(calories).fat(fat).saturatedFat(saturatedFat)
                 .carbohydrates(carbohydrates).fiber(fiber).sugar(sugar).protein(protein).sodium(sodium)
                 .build();
 
-        return repository.save(entity);
+        return repository.save(nutrition);
     }
 
 }
