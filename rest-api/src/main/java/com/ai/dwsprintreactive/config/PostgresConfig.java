@@ -3,18 +3,12 @@ package com.ai.dwsprintreactive.config;
 
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
-import io.r2dbc.postgresql.client.SSLMode;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
-import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @EnableR2dbcRepositories
@@ -30,17 +24,18 @@ public class PostgresConfig extends AbstractR2dbcConfiguration {
                         .username("postgres")
                         .password("andrei15")
                         .database("datawarehouse")
-                       // .sslMode(SSLMode.REQUIRE)
+                       // .sslMode(SSLMode.REQUIRE) // FOR HEROKU
                         .build());
     }
 
-    @Bean
-    @Override
-    public R2dbcCustomConversions r2dbcCustomConversions() {
-        List<Converter<?, ?>> converterList = new ArrayList<Converter<?, ?>>();
-       //converterList.add(new DietReadConverter());
-       // converterList.add(new DietWriteConverter());
-
-        return new R2dbcCustomConversions(getStoreConversions(), converterList);
-    }
+    //TODO NEVER DELETE
+//    @Bean
+//    @Override
+//    public R2dbcCustomConversions r2dbcCustomConversions() {
+//        List<Converter<?, ?>> converterList = new ArrayList<Converter<?, ?>>();
+//       converterList.add(new DietReadConverter());
+//       converterList.add(new DietWriteConverter());
+//
+//        return new R2dbcCustomConversions(getStoreConversions(), converterList);
+//    }
 }

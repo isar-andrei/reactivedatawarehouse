@@ -1,20 +1,20 @@
 package com.ai.dwsprintreactive.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Table("diet_fact")
 public class Diet {

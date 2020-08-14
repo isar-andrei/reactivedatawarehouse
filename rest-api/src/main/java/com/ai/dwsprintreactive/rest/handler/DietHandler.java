@@ -4,7 +4,6 @@ package com.ai.dwsprintreactive.rest.handler;
 import com.ai.dwsprintreactive.model.Diet;
 import com.ai.dwsprintreactive.service.DietService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -62,7 +61,6 @@ public class DietHandler extends AbstractHandler {
                 .flatMap(diet -> ServerResponse
                         .created(URI.create(DIET_URI + "/" + diet.getId()))
                         .contentType(json)
-                        .build()
-                );
+                        .build());
     }
 }

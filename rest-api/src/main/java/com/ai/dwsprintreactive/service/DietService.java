@@ -18,5 +18,5 @@ public interface DietService {
 
     Mono<Void> delete(Integer id);
 
-    Mono<Diet> create(UUID uuid, Integer nutritionKey, Integer userKey, Double servingQuantity, LocalDateTime dietCreatedAt);
+    Mono<Diet> create(UUID uuid, Integer nutritionKey, Integer userKey, Double servingQuantity, LocalDateTime createdAt);
 }

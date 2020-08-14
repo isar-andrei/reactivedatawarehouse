@@ -43,7 +43,7 @@ public class DietServiceImpl implements DietService {
     }
 
     @Override
-    public Mono<Diet> create(UUID uuid, Integer nutritionKey, Integer userKey, Double servingQuantity, LocalDateTime dietCreatedAt) {
-        return repository.save(uuid, nutritionKey, userKey, servingQuantity, dietCreatedAt);
+    public Mono<Diet> create(UUID uuid, Integer nutritionKey, Integer userKey, Double servingQuantity, LocalDateTime createdAt) {
+        return repository.save(uuid, nutritionKey, userKey, servingQuantity, createdAt);
     }
 }
