@@ -1,4 +1,4 @@
-package com.ai.dwsprintreactive.rest;
+package com.ai.dwsprintreactive.rest.handler;
 
 
 import com.ai.dwsprintreactive.model.Diet;
@@ -18,10 +18,8 @@ import static com.ai.dwsprintreactive.rest.RestURIs.DIET_URI;
 
 @Component
 @RequiredArgsConstructor
-public class DietHandler {
+public class DietHandler extends AbstractHandler {
 
-    private final static MediaType json = MediaType.APPLICATION_JSON;
-    private final static Mono<ServerResponse> notFound = ServerResponse.notFound().build();
     @NotNull private final DietService service;
 
     public Mono<ServerResponse> all(ServerRequest request) {
@@ -33,14 +31,14 @@ public class DietHandler {
 
     public Mono<ServerResponse> getById(ServerRequest request) {
         return service.get(id(request))
-                .flatMap(x -> ServerResponse
+                .flatMap(diet -> ServerResponse
                         .ok()
                         .contentType(json)
-                        .body(Mono.just(x), Diet.class))
+                        .body(Mono.just(diet), Diet.class))
                 .switchIfEmpty(notFound);
     }
 
-    public Mono<ServerResponse> getByDate(ServerRequest request) {
+    public Mono<ServerResponse> getByDate(ServerRequest request) { //TODO check if correct
         return ServerResponse
                 .ok()
                 .contentType(json)
@@ -56,20 +54,15 @@ public class DietHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        Mono<Diet> result = request
-                .bodyToMono(Diet.class)
-                .flatMap(x -> service.create(x.getUuid(), x.getNutrition().getId(), x.getUser().getId(), x.getServingQuantity(),
-                                          x.getCreatedAt()));
+        Mono<Diet> dietMono = request.bodyToMono(Diet.class)
+                .flatMap(diet -> service.create(diet.getUuid(), diet.getNutrition().getId(), diet.getUser().getId(),
+                                                diet.getServingQuantity(), diet.getCreatedAt()));
         return Mono
-                .from(result)
-                .flatMap(x -> ServerResponse
-                        .created(URI.create(DIET_URI + "/" + x.getId()))
+                .from(dietMono)
+                .flatMap(diet -> ServerResponse
+                        .created(URI.create(DIET_URI + "/" + diet.getId()))
                         .contentType(json)
                         .build()
                 );
-    }
-
-    private static Integer id(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("id"));
     }
 }

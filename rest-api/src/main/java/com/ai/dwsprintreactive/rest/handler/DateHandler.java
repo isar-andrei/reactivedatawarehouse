@@ -1,4 +1,4 @@
-package com.ai.dwsprintreactive.rest;
+package com.ai.dwsprintreactive.rest.handler;
 
 
 import com.ai.dwsprintreactive.model.Date;
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 
 @Component
 @RequiredArgsConstructor
-public class DateHandler {
+public class DateHandler extends AbstractHandler {
 
     @NotNull private final DateService service;
 
@@ -22,10 +22,6 @@ public class DateHandler {
                 .flatMap(date -> ServerResponse
                         .ok()
                         .body(Mono.just(date), Date.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
-    }
-
-    private static Integer id(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("id"));
+                .switchIfEmpty(notFound);
     }
 }

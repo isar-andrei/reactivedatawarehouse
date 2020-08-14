@@ -1,4 +1,4 @@
-package com.ai.dwsprintreactive.rest;
+package com.ai.dwsprintreactive.rest.handler;
 
 import com.ai.dwsprintreactive.model.Time;
 import com.ai.dwsprintreactive.service.TimeService;
@@ -12,19 +12,15 @@ import javax.validation.constraints.NotNull;
 
 @Component
 @RequiredArgsConstructor
-public class TimeHandler {
+public class TimeHandler extends AbstractHandler {
 
     @NotNull private final TimeService service;
 
     public Mono<ServerResponse> getById(ServerRequest request) {
         return service.get(id(request))
-                .flatMap(x -> ServerResponse
+                .flatMap(time -> ServerResponse
                         .ok()
-                        .body(Mono.just(x), Time.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
-    }
-
-    private static Integer id(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("id"));
+                        .body(Mono.just(time), Time.class))
+                .switchIfEmpty(notFound);
     }
 }

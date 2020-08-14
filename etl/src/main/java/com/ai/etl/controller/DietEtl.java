@@ -23,6 +23,8 @@ public class DietEtl {
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
+    private final static MediaType json = MediaType.APPLICATION_JSON;
+
     @PostMapping("/etl/diets")
     public Flux<Diet> insert(
             @RequestParam(value = "starting") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starting,
@@ -36,13 +38,13 @@ public class DietEtl {
                 .filter(foodTracker -> ending.map(foodTracker.getDate().toLocalDate()::isBefore)
                             .orElse(true));
 
-        Flux<Integer> userKeyFlux = foodTrackerFlux.flatMap(x -> writeWebClient.get()
-                .uri("/api/users/convertUUIDtoID/" + x.getUser().getId())
+        Flux<Integer> userKeyFlux = foodTrackerFlux.flatMap(foodTracker -> writeWebClient.get()
+                .uri("/api/users/convertUUIDtoID/" + foodTracker.getUser().getId())
                 .retrieve()
                 .bodyToMono(Integer.class));
 
-        Flux<Integer> foodKeyFlux = foodTrackerFlux.flatMap(x -> writeWebClient.get()
-                .uri("/api/nutritions/convertUUIDtoID/" + x.getFood().getId())
+        Flux<Integer> foodKeyFlux = foodTrackerFlux.flatMap(foodTracker -> writeWebClient.get()
+                .uri("/api/nutritions/convertUUIDtoID/" + foodTracker.getFood().getId())
                 .retrieve()
                 .bodyToMono(Integer.class));
 
@@ -50,17 +52,17 @@ public class DietEtl {
                 .flatMap(tuple ->
                                  writeWebClient.post()
                                          .uri("/api/diets")
-                                         .contentType(MediaType.APPLICATION_JSON)
+                                         .contentType(json)
                                          .body(BodyInserters.fromValue("{" +
-                                                                       "\"nutrition\" : {" +
-                                                                       "\"id\" : " + tuple.getT3() +
+                                                                       "\"nutrition\":{" +
+                                                                       "\"id\":" + tuple.getT3() +
                                                                        "}," +
-                                                                       "\"user\" : {" +
-                                                                       "\"id\" : " + tuple.getT2() +
+                                                                       "\"user\":{" +
+                                                                       "\"id\":" + tuple.getT2() +
                                                                        "}," +
-                                                                       "\"uuid\" : \"" + tuple.getT1().getId() + "\"," +
-                                                                       "\"servingQuantity\" : " + tuple.getT1().getServingQty() + "," +
-                                                                       "\"createdAt\" : \"" +
+                                                                       "\"uuid\":\"" + tuple.getT1().getId() + "\"," +
+                                                                       "\"servingQuantity\":" + tuple.getT1().getServingQty() + "," +
+                                                                       "\"createdAt\":\"" +
                                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(tuple.getT1().getDate()) + "\"" +
                                                                        "}"))
                                          .exchange()

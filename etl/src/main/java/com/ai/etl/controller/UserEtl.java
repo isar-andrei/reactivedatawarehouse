@@ -16,25 +16,27 @@ public class UserEtl {
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
+    private final static MediaType json = MediaType.APPLICATION_JSON;
+
     @PostMapping("/etl/users")
     public Flux<User> insert() {
         return readWebClient.get()
                 .uri("/api/users")
                 .retrieve()
                 .bodyToFlux(User.class)
-                .flatMap(x -> writeWebClient.post()
+                .flatMap(user -> writeWebClient.post()
                         .uri("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(json)
                         .body(BodyInserters.fromValue("{" +
-                                                      "\"uuid\" : \"" + x.getId() + "\"," +
-                                                      "\"firstName\" : \"" + x.getFirstname() + "\"," +
-                                                      "\"lastName\" : \"" + x.getLastname() + "\"," +
-                                                      "\"weight\" : " + x.getWeight() + "," +
-                                                      "\"height\" : " + x.getHeight() + "," +
-                                                      "\"gender\" : \"" + x.getGender() + "\"," +
-                                                      "\"birthday\" : \"" + x.getBirthday().toLocalDate().toString() + "\"," +
-                                                      "\"email\" : \"" + x.getEmail() + "\"," +
-                                                      "\"username\" : \"" + x.getUsername() + "\"" +
+                                                      "\"uuid\":\"" + user.getId() + "\"," +
+                                                      "\"firstName\":\"" + user.getFirstname() + "\"," +
+                                                      "\"lastName\":\"" + user.getLastname() + "\"," +
+                                                      "\"weight\":" + user.getWeight() + "," +
+                                                      "\"height\":" + user.getHeight() + "," +
+                                                      "\"gender\":\"" + user.getGender() + "\"," +
+                                                      "\"birthday\":\"" + user.getBirthday().toLocalDate().toString() + "\"," +
+                                                      "\"email\":\"" + user.getEmail() + "\"," +
+                                                      "\"username\":\"" + user.getUsername() + "\"" +
                                                       "}"))
                         .exchange()
                         .flatMap(clientResponse -> {

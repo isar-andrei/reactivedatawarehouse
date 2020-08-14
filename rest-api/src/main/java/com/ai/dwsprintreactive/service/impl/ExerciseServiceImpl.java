@@ -40,7 +40,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 .map(existingExercise -> {
                     Integer exerciseId = existingExercise.getId();
                     UUID exerciseUuid = existingExercise.getUuid();
-                    Integer compcode = differentExercise.getCompcode() != null ? differentExercise.getCompcode() : existingExercise.getCompcode();
+                    String compcode = differentExercise.getCompcode() != null ? differentExercise.getCompcode() : existingExercise.getCompcode();
                     Double met = differentExercise.getMet() != null ? differentExercise.getMet() : existingExercise.getMet();
                     String category = differentExercise.getCategory() != null ? differentExercise.getCategory() : existingExercise.getCategory();
                     String description = differentExercise.getDescription() != null ? differentExercise.getDescription() : existingExercise.getDescription();
@@ -57,7 +57,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public Mono<Exercise> create(UUID uuid, Integer compcode, Double met, String category, String description) {
+    public Mono<Exercise> create(UUID uuid, String compcode, Double met, String category, String description) {
         Exercise exercise = Exercise.builder()
                 .uuid(uuid).compcode(compcode).met(met)
                 .category(category).description(description)

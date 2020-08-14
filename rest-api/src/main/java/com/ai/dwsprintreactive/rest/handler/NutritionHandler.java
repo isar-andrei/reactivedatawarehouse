@@ -1,4 +1,4 @@
-package com.ai.dwsprintreactive.rest;
+package com.ai.dwsprintreactive.rest.handler;
 
 import com.ai.dwsprintreactive.model.Nutrition;
 import com.ai.dwsprintreactive.service.NutritionService;
@@ -19,9 +19,8 @@ import static com.ai.dwsprintreactive.rest.RestURIs.NUTRITION_URI;
 
 @Component
 @RequiredArgsConstructor
-public class NutritionHandler {
+public class NutritionHandler extends AbstractHandler {
 
-    private final static MediaType json = MediaType.APPLICATION_JSON;
     @NotNull private final NutritionService service;
 
     public Mono<ServerResponse> all(ServerRequest request) {
@@ -36,51 +35,49 @@ public class NutritionHandler {
                 .flatMap(nutrition -> ServerResponse
                         .ok()
                         .body(Mono.just(nutrition), Nutrition.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+                .switchIfEmpty(notFound);
     }
 
     public Mono<ServerResponse> getIdByUuid(ServerRequest request) {
-        return service.getByUuid(UUID.fromString(request.pathVariable("uuid")))
+        return service.getByUuid(uuid(request))
                 .flatMap(nutrition -> ServerResponse
                         .ok()
                         .body(Mono.just(nutrition.getId()), Integer.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+                .switchIfEmpty(notFound);
     }
 
-    Mono<ServerResponse> updateById(ServerRequest request) {
-        Flux<Nutrition> result = request.bodyToFlux(Nutrition.class)
-                .flatMap(x -> service.update(id(request), Nutrition.builder()
-                        .name(x.getName()).calories(x.getCalories()).fat(x.getFat())
-                        .saturatedFat(x.getSaturatedFat()).carbohydrates(x.getCarbohydrates()).fiber(x.getFiber())
-                        .sugar(x.getSugar()).protein(x.getProtein()).sodium(x.getSodium())
+    public Mono<ServerResponse> update(ServerRequest request) {
+        Flux<Nutrition> nutritionFlux = request.bodyToFlux(Nutrition.class)
+                .flatMap(nutrition -> service.update(id(request), Nutrition.builder()
+                        .name(nutrition.getName()).calories(nutrition.getCalories()).fat(nutrition.getFat())
+                        .saturatedFat(nutrition.getSaturatedFat()).carbohydrates(nutrition.getCarbohydrates()).fiber(nutrition.getFiber())
+                        .sugar(nutrition.getSugar()).protein(nutrition.getProtein()).sodium(nutrition.getSodium())
                         .build()));
         return ServerResponse
                 .ok()
                 .contentType(json)
-                .body(result, Nutrition.class);
+                .body(nutritionFlux, Nutrition.class);
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {
         Mono<Void> result = service.delete(id(request));
-        return ServerResponse.ok().contentType(json).body(result, Void.class);
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(result, Void.class);
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        Flux<Nutrition> result = request
-                .bodyToFlux(Nutrition.class)
-                .flatMap(x -> service.create(x.getUuid(), x.getName(), x.getCalories(), x.getFat(),
-                                             x.getSaturatedFat(), x.getCarbohydrates(), x.getFiber(),
-                                             x.getSugar(), x.getProtein(), x.getSodium()));
+        Mono<Nutrition> nutritionMono = request.bodyToMono(Nutrition.class)
+                .flatMap(nutrition -> service.create(nutrition.getUuid(), nutrition.getName(), nutrition.getCalories(), nutrition.getFat(),
+                                             nutrition.getSaturatedFat(), nutrition.getCarbohydrates(), nutrition.getFiber(),
+                                             nutrition.getSugar(), nutrition.getProtein(), nutrition.getSodium()));
         return Mono
-                .from(result)
-                .flatMap(x -> ServerResponse
-                        .created(URI.create(NUTRITION_URI + "/" + x.getId()))
+                .from(nutritionMono)
+                .flatMap(nutrition -> ServerResponse
+                        .created(URI.create(NUTRITION_URI + "/" + nutrition.getId()))
                         .contentType(json)
                         .build()
                 );
-    }
-
-    private static Integer id(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("id"));
     }
 }

@@ -18,5 +18,5 @@ public interface ExerciseService {
 
     Mono<Void> delete(Integer id);
 
-    Mono<Exercise> create(UUID uuid, Integer compcode, Double met, String category, String description);
+    Mono<Exercise> create(UUID uuid, String compcode, Double met, String category, String description);
 }

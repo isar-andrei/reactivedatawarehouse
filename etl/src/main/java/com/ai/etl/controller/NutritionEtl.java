@@ -18,26 +18,28 @@ public class NutritionEtl {
     WebClient readWebClient = WebClient.create("http://localhost:8090");
     WebClient writeWebClient = WebClient.create("http://localhost:8080");
 
+    private final static MediaType json = MediaType.APPLICATION_JSON;
+
     @PostMapping("/etl/nutritions")
     public Flux<Food> insert() {
         return readWebClient.get()
                 .uri("/api/foods")
                 .retrieve()
                 .bodyToFlux(Food.class)
-                .flatMap(x -> writeWebClient.post()
+                .flatMap(food -> writeWebClient.post()
                         .uri("/api/nutritions")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(json)
                         .body(BodyInserters.fromValue("{" +
-                                                      "\"uuid\" : \"" + x.getId() + "\"," +
-                                                      "\"name\" : \"" + x.getName() + "\"," +
-                                                      "\"calories\" : \"" + x.getCalories() + "\"," +
-                                                      "\"fat\" : \"" + x.getFat() + "\"," +
-                                                      "\"saturatedFat\" : \"" + x.getSaturatedFat() + "\"," +
-                                                      "\"carbohydrates\" : \"" + x.getCarbohydrates() + "\"," +
-                                                      "\"fiber\" : \"" + x.getFiber() + "\"," +
-                                                      "\"sugar\" : \"" + x.getSugar() + "\"," +
-                                                      "\"protein\" : \"" + x.getProtein() + "\"," +
-                                                      "\"sodium\" : \"" + x.getSodium() + "\"" +
+                                                      "\"uuid\":\"" + food.getId() + "\"," +
+                                                      "\"name\":\"" + food.getName() + "\"," +
+                                                      "\"calories\":\"" + food.getCalories() + "\"," +
+                                                      "\"fat\":\"" + food.getFat() + "\"," +
+                                                      "\"saturatedFat\":\"" + food.getSaturatedFat() + "\"," +
+                                                      "\"carbohydrates\":\"" + food.getCarbohydrates() + "\"," +
+                                                      "\"fiber\":\"" + food.getFiber() + "\"," +
+                                                      "\"sugar\":\"" + food.getSugar() + "\"," +
+                                                      "\"protein\":\"" + food.getProtein() + "\"," +
+                                                      "\"sodium\":\"" + food.getSodium() + "\"" +
                                                       "}"))
                         .exchange()
                         .flatMap(clientResponse -> {

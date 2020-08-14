@@ -21,7 +21,7 @@ public class Exercise {
 
     @Column("exercise_uuid") private UUID uuid;
 
-    Integer compcode;
+    String compcode;
 
     Double met;
 

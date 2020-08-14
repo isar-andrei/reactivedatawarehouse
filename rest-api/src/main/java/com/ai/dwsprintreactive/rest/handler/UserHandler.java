@@ -1,4 +1,4 @@
-package com.ai.dwsprintreactive.rest;
+package com.ai.dwsprintreactive.rest.handler;
 
 import com.ai.dwsprintreactive.model.User;
 import com.ai.dwsprintreactive.service.UserService;
@@ -19,9 +19,8 @@ import static com.ai.dwsprintreactive.rest.RestURIs.USER_URI;
 
 @Component
 @RequiredArgsConstructor
-public class UserHandler {
+public class UserHandler extends AbstractHandler {
 
-    private final static MediaType json = MediaType.APPLICATION_JSON;
     @NotNull private final UserService service;
 
     public Mono<ServerResponse> all(ServerRequest request) {
@@ -33,53 +32,51 @@ public class UserHandler {
 
     public Mono<ServerResponse> getById(ServerRequest request) {
         return service.get(id(request))
-                .flatMap(x -> ServerResponse
+                .flatMap(user -> ServerResponse
                         .ok()
-                        .body(Mono.just(x), User.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+                        .body(Mono.just(user), User.class))
+                .switchIfEmpty(notFound);
     }
 
     public Mono<ServerResponse> getIdByUuid(ServerRequest request) {
-        return service.getByUuid(UUID.fromString(request.pathVariable("uuid")))
+        return service.getByUuid(uuid(request))
                 .flatMap(user -> ServerResponse
                         .ok()
                         .body(Mono.just(user.getId()), Integer.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+                .switchIfEmpty(notFound);
     }
 
-    Mono<ServerResponse> updateById(ServerRequest request) {
-        Flux<User> result = request.bodyToFlux(User.class)
-                .flatMap(x -> service.update(id(request), User.builder()
-                        .firstName(x.getFirstName()).lastName(x.getLastName()).weight(x.getWeight())
-                        .height(x.getHeight()).gender(x.getGender()).birthday(x.getBirthday())
-                        .username(x.getUsername()).email(x.getEmail())
+    public Mono<ServerResponse> update(ServerRequest request) {
+        Flux<User> userFlux = request.bodyToFlux(User.class)
+                .flatMap(user -> service.update(id(request), User.builder()
+                        .firstName(user.getFirstName()).lastName(user.getLastName()).weight(user.getWeight())
+                        .height(user.getHeight()).gender(user.getGender()).birthday(user.getBirthday())
+                        .username(user.getUsername()).email(user.getEmail())
                         .build()));
         return ServerResponse
                 .ok()
                 .contentType(json)
-                .body(result, User.class);
+                .body(userFlux, User.class);
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {
         Mono<Void> result = service.delete(id(request));
-        return ServerResponse.ok().contentType(json).body(result, Void.class);
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(result, Void.class);
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        Flux<User> result = request
-                .bodyToFlux(User.class)
-                .flatMap(x -> service
-                        .create(x.getUuid(), x.getFirstName(), x.getLastName(), x.getWeight(), x.getHeight(), x.getGender(),
-                                x.getBirthday(), x.getUsername(), x.getEmail()));
+        Flux<User> userFlux = request.bodyToFlux(User.class)
+                .flatMap(user -> service
+                        .create(user.getUuid(), user.getFirstName(), user.getLastName(), user.getWeight(), user.getHeight(),
+                                user.getGender(), user.getBirthday(), user.getUsername(), user.getEmail()));
         return Mono
-                .from(result)
-                .flatMap(x -> ServerResponse
-                        .created(URI.create(USER_URI + "/" + x.getId()))
+                .from(userFlux)
+                .flatMap(user -> ServerResponse
+                        .created(URI.create(USER_URI + "/" + user.getId()))
                         .contentType(json)
                         .build());
-    }
-
-    private static Integer id(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("id"));
     }
 }

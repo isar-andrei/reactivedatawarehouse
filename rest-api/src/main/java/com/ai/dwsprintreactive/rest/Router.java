@@ -1,5 +1,7 @@
 package com.ai.dwsprintreactive.rest;
 
+import com.ai.dwsprintreactive.model.Exercise;
+import com.ai.dwsprintreactive.rest.handler.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -31,9 +33,20 @@ public class Router {
                 .route(GET(NUTRITION_URI).and(accept(json)), handler::all)
                 .andRoute(GET(NUTRITION_URI + "/{id}").and(accept(json)), handler::getById)
                 .andRoute(GET(NUTRITION_URI + "/convertUUIDtoID/{uuid}").and(accept(json)), handler::getIdByUuid)
-                .andRoute(PUT(NUTRITION_URI + "/{id}").and(accept(json)), handler::updateById)
                 .andRoute(POST(NUTRITION_URI).and(accept(json)), handler::create)
+                .andRoute(PUT(NUTRITION_URI + "/{id}").and(accept(json)), handler::update)
                 .andRoute(DELETE(NUTRITION_URI + "/{id}").and(accept(json)), handler::delete);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> exerciseEndpoint(ExerciseHandler handler) {
+        return RouterFunctions
+                .route(GET(EXERCISE_URI).and(accept(json)), handler::all)
+                .andRoute(GET(EXERCISE_URI + "/{id}").and(accept(json)), handler::getById)
+                .andRoute(GET(EXERCISE_URI + "/convertUUIDtoID/{uuid}").and(accept(json)), handler::getIdByUuid)
+                .andRoute(POST(EXERCISE_URI).and(accept(json)), handler::create)
+                .andRoute(PUT(EXERCISE_URI + "/{id}").and(accept(json)), handler::update)
+                .andRoute(DELETE(EXERCISE_URI + "/{id}").and(accept(json)), handler::delete);
     }
 
     @Bean
@@ -42,8 +55,8 @@ public class Router {
                 .route(GET(USER_URI).and(accept(json)), handler::all)
                 .andRoute(GET(USER_URI + "/{id}").and(accept(json)), handler::getById)
                 .andRoute(GET(USER_URI + "/convertUUIDtoID/{uuid}").and(accept(json)), handler::getIdByUuid)
-                .andRoute(PUT(USER_URI + "/{id}").and(accept(json)), handler::updateById)
                 .andRoute(POST(USER_URI).and(accept(json)), handler::create)
+                .andRoute(PUT(USER_URI + "/{id}").and(accept(json)), handler::update)
                 .andRoute(DELETE(USER_URI + "/{id}").and(accept(json)), handler::delete);
     }
 
