@@ -28,7 +28,8 @@ public class DietCustomRepositoryImpl implements DietCustomRepository {
                        " INNER JOIN user_dim ud on diet_fact.user_key = ud.user_id" +
                        " INNER JOIN time_dim td on diet_fact.time_key = td.time_id" +
                        " INNER JOIN date_dim dd on diet_fact.date_key = dd.date_id" +
-                       " WHERE diet_fact.diet_id = :id";
+                       " WHERE diet_id = :id";
+
         DietMapper mapper = new DietMapper();
 
         return client.execute(query)
@@ -46,17 +47,12 @@ public class DietCustomRepositoryImpl implements DietCustomRepository {
                        " INNER JOIN time_dim td on diet_fact.time_key = td.time_id" +
                        " INNER JOIN date_dim dd on diet_fact.date_key = dd.date_id" +
                        " ORDER BY diet_id";
+
         DietMapper mapper = new DietMapper();
 
         return client.execute(query)
-                        .map(mapper)
-                        .all();
-    }
-
-    @Override //TODO implement me
-    public Flux<Diet> findAllDietByDay(Integer dayKey) {
-
-        return null;
+                .map(mapper)
+                .all();
     }
 
     @Override
@@ -74,8 +70,8 @@ public class DietCustomRepositoryImpl implements DietCustomRepository {
         Integer dateKey = Integer.parseInt(dateString);
 
         String query = "INSERT INTO diet_fact (diet_uuid, nutrition_key, user_key, time_key, date_key, serving_quantity, calories_consumed, diet_created_at)" +
-                       " SELECT :diet_uuid, :nutrition_key, :user_key, :time_key, :date_key, :serving_quantity, :serving_quantity * p.calories, :diet_created_at" +
-                       " FROM (SELECT calories FROM nutrition_dim WHERE nutrition_id = :nutrition_key) p";
+                       " SELECT :diet_uuid, :nutrition_key, :user_key, :time_key, :date_key, :serving_quantity, :serving_quantity * nd.calories, :diet_created_at" +
+                       " FROM (SELECT calories FROM nutrition_dim WHERE nutrition_id = :nutrition_key) nd";
 
         return client.execute(query)
                 .bind("diet_uuid", uuid)

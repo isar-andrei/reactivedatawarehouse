@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodTracker {
+public class FoodEaten {
 
     private UUID id;
 

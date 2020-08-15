@@ -1,7 +1,7 @@
 package com.ai.etl.controller;
 
-import com.ai.etl.domain.Diet;
-import com.ai.etl.domain.FoodEaten;
+import com.ai.etl.domain.Activity;
+import com.ai.etl.domain.ExercisePerformed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,56 +16,54 @@ import java.util.Optional;
 
 @RestController
 @Slf4j
-public class DietEtl extends AbstractEtl {
+public class ActivityEtl extends AbstractEtl {
 
-    @PostMapping("/etl/diets")
-    public Flux<Diet> insert(
+    @PostMapping("/etl/activities")
+    public Flux<Activity> insert(
             @RequestParam(value = "starting") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starting,
             @RequestParam(value = "ending", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> ending
     ) {
-        Flux<FoodEaten> foodTrackerFlux = readWebClient.get()
-                .uri("/api/foods/tracker")
+        Flux<ExercisePerformed> exercisePerformedFlux = readWebClient.get()
+                .uri("/api/exercises/tracker")
                 .retrieve()
-                .bodyToFlux(FoodEaten.class)
-                .filter(foodEaten -> foodEaten.getDate().toLocalDate().isAfter(starting))
-                .filter(foodEaten -> ending.map(foodEaten.getDate().toLocalDate()::isBefore)
-                            .orElse(true));
+                .bodyToFlux(ExercisePerformed.class)
+                .filter(exercisePerformed -> exercisePerformed.getDate().toLocalDate().isAfter(starting))
+                .filter(exercisePerformed -> ending.map(exercisePerformed.getDate().toLocalDate()::isBefore)
+                        .orElse(true));
 
-        Flux<Integer> userKeyFlux = foodTrackerFlux.flatMap(foodEaten -> writeWebClient.get()
-                .uri("/api/users/convertUUIDtoID/" + foodEaten.getUser().getId())
-                .retrieve()
-                .bodyToMono(Integer.class));
-
-        Flux<Integer> foodKeyFlux = foodTrackerFlux.flatMap(foodEaten -> writeWebClient.get()
-                .uri("/api/nutritions/convertUUIDtoID/" + foodEaten.getFood().getId())
+        Flux<Integer> userKeyFlux = exercisePerformedFlux.flatMap(exercisePerformed -> writeWebClient.get()
+                .uri("/api/users/convertUUIDtoID/" + exercisePerformed.getUser().getId())
                 .retrieve()
                 .bodyToMono(Integer.class));
 
-        return Flux.zip(foodTrackerFlux, userKeyFlux, foodKeyFlux)
+        Flux<Integer> exerciseKeyFlux = exercisePerformedFlux.flatMap(exercisePerformed -> writeWebClient.get()
+                .uri("/api/exercises/convertUUIDtoID/" + exercisePerformed.getExercise().getId())
+                .retrieve()
+                .bodyToMono(Integer.class));
+
+        return Flux.zip(exercisePerformedFlux, userKeyFlux, exerciseKeyFlux)
                 .flatMap(tuple ->
                                  writeWebClient.post()
-                                         .uri("/api/diets")
+                                         .uri("/api/activities")
                                          .contentType(json)
                                          .body(BodyInserters.fromValue("{" +
-                                                                       "\"nutrition\":{" +
+                                                                       "\"exercise\":{" +
                                                                        "\"id\":" + tuple.getT3() +
                                                                        "}," +
                                                                        "\"user\":{" +
                                                                        "\"id\":" + tuple.getT2() +
                                                                        "}," +
                                                                        "\"uuid\":\"" + tuple.getT1().getId() + "\"," +
-                                                                       "\"servingQuantity\":" + tuple.getT1().getServingQty() + "," +
+                                                                       "\"duration\":" + tuple.getT1().getTime() + "," +
                                                                        "\"createdAt\":\"" +
                                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(tuple.getT1().getDate()) + "\"" +
                                                                        "}"))
                                          .exchange()
                                          .flatMap(clientResponse -> {
                                              if (clientResponse.statusCode().is5xxServerError()) {
-                                                 clientResponse.body((clientHttpResponse, context) -> clientHttpResponse
-                                                         .getBody());
+                                                 clientResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
                                              }
-                                             return clientResponse.bodyToMono(Diet.class);
-                                         })
-                );
+                                             return clientResponse.bodyToMono(Activity.class);
+                                         }));
     }
 }

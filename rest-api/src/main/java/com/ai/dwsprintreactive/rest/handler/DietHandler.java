@@ -37,13 +37,6 @@ public class DietHandler extends AbstractHandler {
                 .switchIfEmpty(notFound);
     }
 
-    public Mono<ServerResponse> getByDate(ServerRequest request) { //TODO check if correct
-        return ServerResponse
-                .ok()
-                .contentType(json)
-                .body(service.getByDate(id(request)), Diet.class);
-    }
-
     public Mono<ServerResponse> delete(ServerRequest request) {
         Mono<Void> result = service.delete(id(request));
         return ServerResponse
@@ -53,7 +46,8 @@ public class DietHandler extends AbstractHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        Mono<Diet> dietMono = request.bodyToMono(Diet.class)
+        Mono<Diet> dietMono = request
+                .bodyToMono(Diet.class)
                 .flatMap(diet -> service.create(diet.getUuid(), diet.getNutrition().getId(), diet.getUser().getId(),
                                                 diet.getServingQuantity(), diet.getCreatedAt()));
         return Mono
@@ -61,6 +55,7 @@ public class DietHandler extends AbstractHandler {
                 .flatMap(diet -> ServerResponse
                         .created(URI.create(DIET_URI + "/" + diet.getId()))
                         .contentType(json)
-                        .build());
+                        .build()
+                );
     }
 }

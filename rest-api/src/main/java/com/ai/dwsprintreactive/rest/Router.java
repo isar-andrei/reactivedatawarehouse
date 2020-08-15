@@ -21,7 +21,6 @@ public class Router {
         return RouterFunctions
                 .route(GET(DIET_URI).and(accept(json)), handler::all)
                 .andRoute(GET(DIET_URI + "/{id}").and(accept(json)), handler::getById)
-                .andRoute(GET(DIET_URI + "/{id}").and(accept(json)), handler::getByDate)
                 .andRoute(POST(DIET_URI).and(accept(json)), handler::create)
                 .andRoute(DELETE(DIET_URI + "/{id}").and(accept(json)), handler::delete);
     }

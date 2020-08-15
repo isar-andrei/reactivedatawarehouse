@@ -14,7 +14,5 @@ public interface DietCustomRepository {
 
     Flux<Diet> all();
 
-    Flux<Diet> findAllDietByDay(Integer dayKey);
-
     Mono<Diet> save(UUID uuid, Integer nutritionKey, Integer userKey, Double servingQuantity, LocalDateTime createdAt);
 }

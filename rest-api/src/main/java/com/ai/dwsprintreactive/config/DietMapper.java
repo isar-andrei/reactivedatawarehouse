@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+
 public class DietMapper implements BiFunction<Row, RowMetadata, Diet> {
 
     @Override

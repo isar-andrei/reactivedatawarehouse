@@ -30,12 +30,6 @@ public class DietServiceImpl implements DietService {
         return repository.get(id);
     }
 
-    //TODO: Implement
-    @Override
-    public Flux<Diet> getByDate(Integer dateKey) {
-        return repository.findAllDietByDay(dateKey).log();
-    }
-
     @Override
     public Mono<Void> delete(Integer id) {
         return get(id)
