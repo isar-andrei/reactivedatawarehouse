@@ -1,6 +1,5 @@
 package com.ai.dwsprintreactive.rest;
 
-import com.ai.dwsprintreactive.model.Exercise;
 import com.ai.dwsprintreactive.rest.handler.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +24,15 @@ public class Router {
                 .andRoute(GET(DIET_URI + "/{id}").and(accept(json)), handler::getByDate)
                 .andRoute(POST(DIET_URI).and(accept(json)), handler::create)
                 .andRoute(DELETE(DIET_URI + "/{id}").and(accept(json)), handler::delete);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> activityEndpoint(ActivityHandler handler) {
+        return RouterFunctions
+                .route(GET(ACTIVITY_URI).and(accept(json)), handler::all)
+                .andRoute(GET(ACTIVITY_URI + "/{id}").and(accept(json)), handler::getById)
+                .andRoute(POST(ACTIVITY_URI).and(accept(json)), handler::create)
+                .andRoute(DELETE(ACTIVITY_URI + "/{id}").and(accept(json)), handler::delete);
     }
 
     @Bean
