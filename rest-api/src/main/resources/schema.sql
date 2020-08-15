@@ -1,28 +1,41 @@
+------------------------ user_dim ------------------------
 create table user_dim
 (
     user_id serial not null
         constraint user_dim_pkey
             primary key,
-    first_name varchar not null,
-    last_name varchar not null,
+    user_uuid uuid not null,
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
     weight numeric(5,2) not null,
     height numeric(4,2) not null,
-    gender varchar not null,
+    gender varchar(6) not null,
     birthday date not null,
-    country varchar not null,
-    enabled boolean default true,
-    user_created_at timestamp not null,
-    updated_at timestamp not null
+    updated_at timestamp default now() not null,
+    username varchar(50) not null,
+    email varchar(50) not null,
+    user_created_at timestamp default now() not null
 );
 
+alter table user_dim owner to postgres;
+
+create unique index user_dim_user_uuid_uindex
+    on user_dim (user_uuid);
+
+create unique index user_dim_username_uindex
+    on user_dim (username);
+
+create unique index user_dim_email_uindex
+    on user_dim (email);
+
+------------------------ nutritrion_dim ------------------------
 create table nutrition_dim
 (
     nutrition_id serial not null
         constraint nutrition_dim_pkey
             primary key,
-    name varchar not null
-        constraint nutrition_dim_name_key
-            unique,
+    nutrition_uuid uuid not null,
+    name varchar(50) not null,
     calories real not null
         constraint nutrition_dim_calories_check
             check (calories >= (0)::double precision),
@@ -49,6 +62,15 @@ create table nutrition_dim
             check (sodium >= (0)::double precision)
 );
 
+alter table nutrition_dim owner to postgres;
+
+create unique index nutrition_dim_nutrition_id_uindex
+    on nutrition_dim (nutrition_id);
+
+create unique index nutrition_dim_nutrition_uuid_uindex
+    on nutrition_dim (nutrition_uuid);
+
+------------------------ time_dim ------------------------
 create table time_dim
 (
     time_id integer not null
@@ -59,6 +81,10 @@ create table time_dim
     minute char(2) not null,
     period varchar(20) not null
 );
+
+alter table time_dim owner to postgres;
+
+------------------------ date_dim ------------------------
 
 create table date_dim
 (
@@ -75,14 +101,19 @@ create table date_dim
     weekend boolean not null
 );
 
+alter table date_dim owner to postgres;
+
 create index d_date_date_actual_idx
     on date_dim (date);
+
+------------------------ diet_fact ------------------------
 
 create table diet_fact
 (
     diet_id serial not null
         constraint diet_fact_pkey
             primary key,
+    diet_uuid uuid not null,
     nutrition_key integer not null
         constraint diet_fact_nutrition_key_fkey
             references nutrition_dim,
@@ -104,6 +135,65 @@ create table diet_fact
     diet_created_at timestamp not null
 );
 
+alter table diet_fact owner to postgres;
+
+create unique index diet_fact_diet_id_uindex
+    on diet_fact (diet_id);
+
+------------------------ exercise_dim ------------------------
+
+create table exercise_dim
+(
+    exercise_id serial not null
+        constraint exercise_dim_pk
+            primary key,
+    exercise_uuid uuid not null,
+    compcode varchar(5) not null,
+    met numeric(3,1) not null,
+    category varchar(25) not null,
+    description varchar(250) not null
+);
+
+alter table exercise_dim owner to postgres;
+
+create unique index exercise_dim_id_uindex
+    on exercise_dim (exercise_id);
+
+create unique index exercise_dim_uuid_uindex
+    on exercise_dim (exercise_uuid);
+
+------------------------ activity_fact ------------------------
+
+create table activity_fact
+(
+    activity_id serial not null
+        constraint activity_fact_pk
+            primary key,
+    activity_uuid uuid not null,
+    activity_exercise_key integer not null
+        constraint activity_fact_activity_exercise_key_fkey
+            references exercise_dim,
+    activity_user_key integer not null
+        constraint activity_fact_activity_user_key_fkey
+            references user_dim,
+    activity_time_key integer not null
+        constraint activity_fact_activity_time_key_fkey
+            references time_dim,
+    activity_date_key integer not null
+        constraint activity_fact_activity_date_key_fkey
+            references date_dim,
+    duration integer not null,
+    calories_burned real not null,
+    activity_created_at timestamp not null
+);
+
+alter table activity_fact owner to postgres;
+
+create unique index activity_fact_activity_id_uindex
+    on activity_fact (activity_id);
+
+------------------------ triggers ------------------------
+
 create function trigger_set_timestamp() returns trigger
     language plpgsql
 as $$
@@ -120,4 +210,14 @@ create trigger set_timestamp
     on user_dim
     for each row
 execute procedure trigger_set_timestamp();
+
+------------------------ TimescaleDB ------------------------
+-- psql -U postgres -h localhost
+-- CREATE database datawarehouse;
+-- \c datawarehouse
+-- CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+--
+--
+-- SELECT create_hypertable('activity_fact', 'activity_id', chunk_time_interval => 1000);
+-- SELECT create_hypertable('diet_fact', 'diet_id', chunk_time_interval => 1000);
 
