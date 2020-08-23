@@ -6,38 +6,31 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document
+@CompoundIndex(name = "nuc", def = "{'nutrition.id': 1, 'user.id': 1, 'createdAt' : -1}")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("diet_fact")
 public class Diet {
 
-    @Id @Column("diet_id") private Integer id;
+    @Id private String id;
 
-    @Column("diet_uuid") private UUID uuid;
+    private Nutrition nutrition;
 
-    @Column("nutrition_key") private Nutrition nutrition;
+    private User user;
 
-    @Column("user_key") private User user;
+    private Double servingQuantity;
 
-    @Column("time_key") private Time time;
+    private Double caloriesConsumed;
 
-    @Column("date_key") private Date date;
-
-    @Column("serving_quantity") private Double servingQuantity;
-
-    @Column("calories_consumed") private Double caloriesConsumed;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = ISO.DATE_TIME)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column("diet_created_at") private LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 }

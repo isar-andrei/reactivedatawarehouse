@@ -1,10 +1,9 @@
 package com.ai.dwsprintreactive.repository;
 
-
 import com.ai.dwsprintreactive.model.Diet;
 import com.ai.dwsprintreactive.repository.custom.DietCustomRepository;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-@Repository
-public interface DietRepository extends ReactiveCrudRepository<Diet, Integer>, DietCustomRepository {}
+public interface DietRepository extends ReactiveMongoRepository<Diet, String>, DietCustomRepository {
+
+}

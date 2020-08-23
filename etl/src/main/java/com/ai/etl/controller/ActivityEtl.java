@@ -1,7 +1,6 @@
 package com.ai.etl.controller;
 
 import com.ai.etl.domain.Activity;
-import com.ai.etl.domain.ExercisePerformed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,47 +22,44 @@ public class ActivityEtl extends AbstractEtl {
             @RequestParam(value = "starting") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starting,
             @RequestParam(value = "ending", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> ending
     ) {
-        Flux<ExercisePerformed> exercisePerformedFlux = readWebClient.get()
+        return readWebClient.get()
                 .uri("/api/exercises/tracker")
                 .retrieve()
-                .bodyToFlux(ExercisePerformed.class)
+                .bodyToFlux(Activity.class)
                 .filter(exercisePerformed -> exercisePerformed.getDate().toLocalDate().isAfter(starting))
                 .filter(exercisePerformed -> ending.map(exercisePerformed.getDate().toLocalDate()::isBefore)
-                        .orElse(true));
-
-        Flux<Integer> userKeyFlux = exercisePerformedFlux.flatMap(exercisePerformed -> writeWebClient.get()
-                .uri("/api/users/convertUUIDtoID/" + exercisePerformed.getUser().getId())
-                .retrieve()
-                .bodyToMono(Integer.class));
-
-        Flux<Integer> exerciseKeyFlux = exercisePerformedFlux.flatMap(exercisePerformed -> writeWebClient.get()
-                .uri("/api/exercises/convertUUIDtoID/" + exercisePerformed.getExercise().getId())
-                .retrieve()
-                .bodyToMono(Integer.class));
-
-        return Flux.zip(exercisePerformedFlux, userKeyFlux, exerciseKeyFlux)
-                .flatMap(tuple ->
-                                 writeWebClient.post()
-                                         .uri("/api/activities")
-                                         .contentType(json)
-                                         .body(BodyInserters.fromValue("{" +
-                                                                       "\"exercise\":{" +
-                                                                       "\"id\":" + tuple.getT3() +
-                                                                       "}," +
-                                                                       "\"user\":{" +
-                                                                       "\"id\":" + tuple.getT2() +
-                                                                       "}," +
-                                                                       "\"uuid\":\"" + tuple.getT1().getId() + "\"," +
-                                                                       "\"duration\":" + tuple.getT1().getTime() + "," +
-                                                                       "\"createdAt\":\"" +
-                                                                       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(tuple.getT1().getDate()) + "\"" +
-                                                                       "}"))
-                                         .exchange()
-                                         .flatMap(clientResponse -> {
-                                             if (clientResponse.statusCode().is5xxServerError()) {
-                                                 clientResponse.body((clientHttpResponse, context) -> clientHttpResponse.getBody());
-                                             }
-                                             return clientResponse.bodyToMono(Activity.class);
-                                         }));
+                        .orElse(true))
+                .flatMap(activity -> writeWebClient.post()
+                        .uri("/api/activities")
+                        .contentType(json)
+                        .body(BodyInserters.fromValue("{" +
+                                                      "\"exercise\":{" +
+                                                      "\"compcode\":\"" + activity.getExercise().getCode() + "\"," +
+                                                      "\"met\":" + activity.getExercise().getMet() + "," +
+                                                      "\"category\":\"" + activity.getExercise().getCategory() + "\"," +
+                                                      "\"description\":\"" + activity.getExercise().getDescription() + "\"" +
+                                                      "}," +
+                                                      "\"user\":{" +
+                                                      "\"username\":\"" + activity.getUser().getUsername() + "\"," +
+                                                      "\"firstName\":\"" + activity.getUser().getFirstname() + "\"," +
+                                                      "\"lastName\":\"" + activity.getUser().getLastname() + "\"," +
+                                                      "\"weight\":" + activity.getUser().getWeight() + "," +
+                                                      "\"height\":" + activity.getUser().getHeight() + "," +
+                                                      "\"gender\":\"" + activity.getUser().getGender() + "\"," +
+                                                      "\"birthday\":\"" + activity.getUser().getBirthday().toLocalDate().toString() + "\"," +
+                                                      "\"email\":\"" + activity.getUser().getEmail() + "\"" +
+                                                      "}," +
+                                                      "\"duration\":" + activity.getTime() + "," +
+                                                      "\"createdAt\":\"" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(activity.getDate()) + "\"" +
+                                                      "}"))
+                        .exchange()
+                        .flatMap(clientResponse -> {
+                            if (clientResponse.statusCode().is5xxServerError()) {
+                                clientResponse.body((clientHttpResponse, context) -> clientHttpResponse
+                                        .getBody());
+                            }
+                            return clientResponse.bodyToMono(Activity.class);
+                        })
+                );
     }
 }

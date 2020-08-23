@@ -17,18 +17,17 @@ import static com.ai.dwsprintreactive.rest.RestURIs.ACTIVITY_URI;
 @RequiredArgsConstructor
 public class ActivityHandler extends AbstractHandler {
 
-    @NotNull
-    private final ActivityService service;
+    @NotNull private final ActivityService service;
 
     public Mono<ServerResponse> all(ServerRequest request) {
         return ServerResponse
                 .ok()
                 .contentType(json)
-                .body(service.all(), Activity.class);
+                .body(service.findAll(), Activity.class);
     }
 
     public Mono<ServerResponse> getById(ServerRequest request) {
-        return service.get(id(request))
+        return service.findById(id(request))
                 .flatMap(activity -> ServerResponse
                         .ok()
                         .contentType(json)
@@ -36,18 +35,9 @@ public class ActivityHandler extends AbstractHandler {
                 .switchIfEmpty(notFound);
     }
 
-    public Mono<ServerResponse> delete(ServerRequest request) {
-        Mono<Void> result = service.delete(id(request));
-        return ServerResponse
-                .ok()
-                .contentType(json)
-                .body(result, Void.class);
-    }
-
     public Mono<ServerResponse> create(ServerRequest request) {
         Mono<Activity> activityMono = request.bodyToMono(Activity.class)
-                .flatMap(activity -> service.create(activity.getUuid(), activity.getExercise().getId(), activity.getUser().getId(),
-                                                    activity.getDuration(), activity.getCreatedAt()));
+                .flatMap(activity -> service.save(activity.getExercise(), activity.getUser(), activity.getDuration(), activity.getCreatedAt()));
         return Mono
                 .from(activityMono)
                 .flatMap(activity -> ServerResponse
@@ -56,4 +46,19 @@ public class ActivityHandler extends AbstractHandler {
                         .build());
     }
 
+    public Mono<ServerResponse> delete(ServerRequest request) {
+        Mono<Void> result = service.deleteById(id(request));
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(result, Void.class);
+    }
+
+    public Mono<ServerResponse> deleteAll(ServerRequest request) {
+        Mono<Void> result = service.deleteAll();
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(result, Void.class);
+    }
 }

@@ -6,28 +6,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("user_dim")
 public class User {
 
-    @Id @Column("user_id") private Integer id;
+    @Field("username") @Id private String username;
 
-    @Column("user_uuid") private UUID uuid;
+    private String firstName;
 
-    @Column("first_name") private String firstName;
-
-    @Column("last_name") private String lastName;
+    private String lastName;
 
     private Double weight;
 
@@ -35,19 +29,9 @@ public class User {
 
     private String gender;
 
+    private String email;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd", iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-
-    private String email;
-
-    private String username;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column("user_created_at") LocalDateTime createdAt;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column("updated_at") LocalDateTime updatedAt;
 }

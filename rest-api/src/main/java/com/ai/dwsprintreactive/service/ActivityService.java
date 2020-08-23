@@ -1,19 +1,22 @@
 package com.ai.dwsprintreactive.service;
 
 import com.ai.dwsprintreactive.model.Activity;
+import com.ai.dwsprintreactive.model.Exercise;
+import com.ai.dwsprintreactive.model.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public interface ActivityService {
 
-    Flux<Activity> all();
+    Mono<Activity> findById(String id);
 
-    Mono<Activity> get(Integer id);
+    Flux<Activity> findAll();
 
-    Mono<Void> delete(Integer id);
+    Mono<Activity> save(Exercise exercise, User user, Integer duration, LocalDateTime createdAt);
 
-    Mono<Activity> create(UUID uuid, Integer exerciseKey, Integer userKey, Integer duration, LocalDateTime createdAt);
+    Mono<Void> deleteById(String id);
+
+    Mono<Void> deleteAll();
 }

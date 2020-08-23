@@ -5,29 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-
-import java.util.UUID;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("nutrition_dim")
 public class Nutrition {
 
-    @Id @Column("nutrition_id") private Integer id;
-
-    @Column("nutrition_uuid") private UUID uuid;
-
-    private String name;
+    @Field("name") @Id private String name;
 
     private Double calories;
 
     private Double fat;
 
-    @Column("saturated_fat") private Double saturatedFat;
+    private Double saturatedFat;
 
     private Double carbohydrates;
 

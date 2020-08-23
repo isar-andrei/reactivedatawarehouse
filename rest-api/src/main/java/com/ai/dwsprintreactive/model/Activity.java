@@ -6,38 +6,31 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document
+@CompoundIndex(name = "euc", def = "{'exercise.id': 1, 'user.id': 1, 'createdAt' : -1}")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("activity_fact")
 public class Activity {
 
-    @Id
-    @Column("activity_id") private Integer id;
+    @Id private String id;
 
-    @Column("activity_uuid") private UUID uuid;
+    private Exercise exercise;
 
-    @Column("activity_exercise_key") private Exercise exercise;
-
-    @Column("activity_user_key") private User user;
-
-    @Column("activity_time_key") private Time time;
-
-    @Column("activity_date_key") private Date date;
+    private User user;
 
     private Integer duration;
 
-    @Column("calories_burned") private Double caloriesBurned;
+    private Double caloriesBurned;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column("activity_created_at") private LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 }
