@@ -1,7 +1,6 @@
 package com.ai.etl.controller;
 
 import com.ai.etl.domain.FoodEaten;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,8 +12,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+//@Slf4j
 @RestController
-@Slf4j
 public class DietEtl extends AbstractEtl {
 
     @PostMapping("/etl/diets")

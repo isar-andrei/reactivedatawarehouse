@@ -80,7 +80,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Mono<Activity> save(Exercise exercise, User user, Integer duration, LocalDateTime createdAt) {
-        Double caloriesBurned = exercise.getMet() * 3.5 * user.getWeight() / 200;
+        Double caloriesBurned = exercise.getMet() * 3.5 * user.getWeight() / 200 * duration;
 
         return repository.save(Activity.builder()
                                        .exercise(exercise).user(user).duration(duration)
