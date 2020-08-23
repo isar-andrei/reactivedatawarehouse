@@ -1,12 +1,12 @@
 package com.ai.dwsprintreactive.repository.custom;
 
-import com.ai.dwsprintreactive.model.Exercise;
+import com.ai.dwsprintreactive.model.Activity;
 import reactor.core.publisher.Flux;
 
 public interface ActivityCustomRepository {
 
-    Flux<Exercise> findAllByUsername(String username);
+    Flux<Activity> findAllByUsername(String username);
 
-    Flux<Exercise> findAllByExerciseCompcode(String compcode);
+    Flux<Activity> findAllByExerciseCompcode(String compcode);
 
 }

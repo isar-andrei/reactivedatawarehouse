@@ -12,7 +12,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotNull;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
@@ -23,6 +27,50 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Mono<Activity> findById(String id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public Flux<Activity> findAllByUsername(String username) {
+        return repository.findAllByUsername(username);
+    }
+
+    @Override
+    public Flux<Activity> findAllByExerciseCompcode(String compcode) {
+        return repository.findAllByExerciseCompcode(compcode);
+    }
+
+    @Override
+    public Mono<Double> sumCaloriesOnCurrentDay(String username) {
+        int currentDay = LocalDate.now().getDayOfYear();
+
+        Flux<Activity> result = findAllByUsername(username)
+                .filter(activity -> activity.getCreatedAt().toLocalDate().getDayOfYear() == currentDay);
+
+        return result.collect(Collectors.summingDouble(Activity::getCaloriesBurned));
+    }
+
+    @Override
+    public Mono<Double> avgCaloriesOnCurrentWeek(String username) {
+        LocalDate now = LocalDate.now();
+        LocalDate starting = now.with(DayOfWeek.MONDAY);
+        LocalDate ending = now.with(DayOfWeek.SUNDAY);
+
+        Flux<Activity> result = findAllByUsername(username)
+                .filter(activity -> !activity.getCreatedAt().toLocalDate().isBefore(starting) && !activity.getCreatedAt().toLocalDate().isAfter(ending));
+
+        return result.collect(Collectors.averagingDouble(Activity::getCaloriesBurned));
+    }
+
+    @Override
+    public Mono<Double> avgCaloriesBetweenDates(String username, String starting, String ending) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startingDate = LocalDateTime.parse(starting, formatter);
+        LocalDateTime endingDate = LocalDateTime.parse(ending, formatter);
+
+        Flux<Activity> result = findAllByUsername(username)
+                .filter(activity -> activity.getCreatedAt().isAfter(startingDate) && activity.getCreatedAt().isBefore(endingDate));
+
+        return result.collect(Collectors.averagingDouble(Activity::getCaloriesBurned));
     }
 
     @Override
@@ -44,6 +92,13 @@ public class ActivityServiceImpl implements ActivityService {
     public Mono<Void> deleteById(String id) {
         return findById(id)
                 .flatMap(exercise -> repository.deleteById(exercise.getId()));
+    }
+
+    @Override
+    public Mono<Void> deleteByUsername(String username) {
+        return findAllByUsername(username)
+                .flatMap(activity -> deleteById(activity.getId()))
+                .then();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class DietHandler extends AbstractHandler {
 
     @NotNull private final DietService service;
 
-    public Mono<ServerResponse> getById(ServerRequest request) {
+    public Mono<ServerResponse> findDietById(ServerRequest request) {
         return service.findById(id(request))
                 .flatMap(diet -> ServerResponse
                         .ok()
@@ -30,21 +30,21 @@ public class DietHandler extends AbstractHandler {
                 .switchIfEmpty(notFound);
     }
 
-    public Mono<ServerResponse> findAllByUsername(ServerRequest request) {
+    public Mono<ServerResponse> findAllDietsByUsername(ServerRequest request) {
         return ServerResponse
                 .ok()
                 .contentType(json)
                 .body(service.findAllByUsername(username(request)), Diet.class);
     }
 
-    public Mono<ServerResponse> findAllByNutritionName(ServerRequest request) {
+    public Mono<ServerResponse> findAllDietsByNutritionName(ServerRequest request) {
         return ServerResponse
                 .ok()
                 .contentType(json)
                 .body(service.findAllByNutritionName(request.pathVariable("nutritionName")), Diet.class);
     }
 
-    public Mono<ServerResponse> sumCaloriesOnCurrentDay(ServerRequest request) {
+    public Mono<ServerResponse> sumCalConsumedOnCurrentDay(ServerRequest request) {
         return service.sumCaloriesOnCurrentDay(username(request))
                 .flatMap(calories -> ServerResponse
                         .ok()
@@ -52,7 +52,7 @@ public class DietHandler extends AbstractHandler {
                         .body(Mono.just(calories), Double.class));
     }
 
-    public Mono<ServerResponse> avgCaloriesOnCurrentWeek(ServerRequest request) {
+    public Mono<ServerResponse> avgCalConsumedOnCurrentWeek(ServerRequest request) {
         return service.avgCaloriesOnCurrentWeek(username(request))
                 .flatMap(calories -> ServerResponse
                         .ok()
@@ -60,7 +60,7 @@ public class DietHandler extends AbstractHandler {
                         .body(Mono.just(calories), Double.class));
     }
 
-    public Mono<ServerResponse> avgCaloriesBetweenDates(ServerRequest request) {
+    public Mono<ServerResponse> avgCalConsumedBetweenDates(ServerRequest request) {
         String starting;
         String ending;
        if (request.queryParam("starting").isPresent() && request.queryParam("ending").isPresent()) {
@@ -80,14 +80,14 @@ public class DietHandler extends AbstractHandler {
                         .body(Mono.just(calories), Double.class));
     }
 
-    public Mono<ServerResponse> findAll(ServerRequest request) {
+    public Mono<ServerResponse> findAllDiets(ServerRequest request) {
         return ServerResponse
                 .ok()
                 .contentType(json)
                 .body(service.findAll(), Diet.class);
     }
 
-    public Mono<ServerResponse> create(ServerRequest request) {
+    public Mono<ServerResponse> saveDiet(ServerRequest request) {
         Mono<Diet> dietMono = request
                 .bodyToMono(Diet.class)
                 .flatMap(diet -> service.save(diet.getNutrition(), diet.getUser(), diet.getServingQuantity(), diet.getCreatedAt()));
@@ -100,7 +100,7 @@ public class DietHandler extends AbstractHandler {
                 );
     }
 
-    public Mono<ServerResponse> deleteById(ServerRequest request) {
+    public Mono<ServerResponse> deleteDietById(ServerRequest request) {
         Mono<Void> result = service.deleteById(id(request));
         return ServerResponse
                 .ok()
@@ -108,7 +108,7 @@ public class DietHandler extends AbstractHandler {
                 .body(result, Void.class);
     }
 
-    public Mono<ServerResponse> deleteByUsername(ServerRequest request) {
+    public Mono<ServerResponse> deleteDietByUsername(ServerRequest request) {
         Mono<Void> result = service.deleteByUsername(username(request));
         return ServerResponse
                 .ok()
@@ -116,7 +116,7 @@ public class DietHandler extends AbstractHandler {
                 .body(result, Void.class);
     }
 
-    public Mono<ServerResponse> deleteAll(ServerRequest request) {
+    public Mono<ServerResponse> deleteAllDiets(ServerRequest request) {
         Mono<Void> result = service.deleteAll();
         return ServerResponse
                 .ok()

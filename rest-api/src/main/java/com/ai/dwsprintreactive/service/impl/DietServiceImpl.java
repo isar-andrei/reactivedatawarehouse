@@ -108,6 +108,7 @@ public class DietServiceImpl implements DietService {
                 .then();
     }
 
+    // KEEP IN CASE NEEDED IN THE FUTURE
 //    public <T> Flux<T> intersect(Flux<T> f1, Flux<T> f2) {
 //        return f1.join(f2, f -> Flux.never(), f -> Flux.never(), Tuples::of)
 //                .filter(t -> t.getT1().equals(t.getT2()))

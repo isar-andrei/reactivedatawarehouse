@@ -19,14 +19,7 @@ public class ActivityHandler extends AbstractHandler {
 
     @NotNull private final ActivityService service;
 
-    public Mono<ServerResponse> all(ServerRequest request) {
-        return ServerResponse
-                .ok()
-                .contentType(json)
-                .body(service.findAll(), Activity.class);
-    }
-
-    public Mono<ServerResponse> getById(ServerRequest request) {
+    public Mono<ServerResponse> findActivityById(ServerRequest request) {
         return service.findById(id(request))
                 .flatMap(activity -> ServerResponse
                         .ok()
@@ -35,7 +28,64 @@ public class ActivityHandler extends AbstractHandler {
                 .switchIfEmpty(notFound);
     }
 
-    public Mono<ServerResponse> create(ServerRequest request) {
+    public Mono<ServerResponse> findAllActivitiesByUsername(ServerRequest request) {
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(service.findAllByUsername(username(request)), Activity.class);
+    }
+
+    public Mono<ServerResponse> findAllActivitiesByExerciseCompcode(ServerRequest request) {
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(service.findAllByExerciseCompcode(request.pathVariable("exerciseCompcode")), Activity.class);
+    }
+
+    public Mono<ServerResponse> sumCalBurnedOnCurrentDay(ServerRequest request) {
+        return service.sumCaloriesOnCurrentDay(username(request))
+                .flatMap(calories -> ServerResponse
+                        .ok()
+                        .contentType(json)
+                        .body(Mono.just(calories), Double.class));
+    }
+
+    public Mono<ServerResponse> avgCalBurnedOnCurrentWeek(ServerRequest request) {
+        return service.avgCaloriesOnCurrentWeek(username(request))
+                .flatMap(calories -> ServerResponse
+                        .ok()
+                        .contentType(json)
+                        .body(Mono.just(calories), Double.class));
+    }
+
+    public Mono<ServerResponse> avgCalBurnedBetweenDates(ServerRequest request) {
+        String starting;
+        String ending;
+        if (request.queryParam("starting").isPresent() && request.queryParam("ending").isPresent()) {
+            starting = request.queryParam("starting").get();
+            ending = request.queryParam("ending").get();
+        } else {
+            return ServerResponse
+                    .ok()
+                    .contentType(json)
+                    .body(Mono.empty(), Double.class);
+        }
+
+        return service.avgCaloriesBetweenDates(request.pathVariable("username"), starting, ending)
+                .flatMap(calories -> ServerResponse
+                        .ok()
+                        .contentType(json)
+                        .body(Mono.just(calories), Double.class));
+    }
+
+    public Mono<ServerResponse> findAllActivities(ServerRequest request) {
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(service.findAll(), Activity.class);
+    }
+
+    public Mono<ServerResponse> saveActivity(ServerRequest request) {
         Mono<Activity> activityMono = request.bodyToMono(Activity.class)
                 .flatMap(activity -> service.save(activity.getExercise(), activity.getUser(), activity.getDuration(), activity.getCreatedAt()));
         return Mono
@@ -46,7 +96,7 @@ public class ActivityHandler extends AbstractHandler {
                         .build());
     }
 
-    public Mono<ServerResponse> delete(ServerRequest request) {
+    public Mono<ServerResponse> deleteActivityById(ServerRequest request) {
         Mono<Void> result = service.deleteById(id(request));
         return ServerResponse
                 .ok()
@@ -54,7 +104,15 @@ public class ActivityHandler extends AbstractHandler {
                 .body(result, Void.class);
     }
 
-    public Mono<ServerResponse> deleteAll(ServerRequest request) {
+    public Mono<ServerResponse> deleteActivityByUsername(ServerRequest request) {
+        Mono<Void> result = service.deleteByUsername(username(request));
+        return ServerResponse
+                .ok()
+                .contentType(json)
+                .body(result, Void.class);
+    }
+
+    public Mono<ServerResponse> deleteAllActivities(ServerRequest request) {
         Mono<Void> result = service.deleteAll();
         return ServerResponse
                 .ok()
