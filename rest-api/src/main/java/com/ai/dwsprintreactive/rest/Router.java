@@ -25,13 +25,13 @@ public class Router {
                 .andRoute(GET(DIET_URI + "/{id}").and(accept(json)), handler::findDietById)
                 .andRoute(GET(DIET_URI + "/user/{username}").and(accept(json)), handler::findAllDietsByUsername)
                 .andRoute(GET(DIET_URI + "/user/{username}/sumcalday").and(accept(json)), handler::sumCalConsumedOnCurrentDay)
-                .andRoute(GET(DIET_URI + "/user/{username}/avgcalweek").and(accept(json)), handler::avgCalConsumedOnCurrentWeek)
                 .andRoute(GET(DIET_URI + "/user/{username}/avgcal").and(accept(json)), handler::avgCalConsumedBetweenDates)
+                .andRoute(GET(DIET_URI + "/user/{username}/avgcalweek").and(accept(json)), handler::avgCalConsumedOnCurrentWeek)
                 .andRoute(GET(DIET_URI + "/nutrition/{nutritionName}").and(accept(json)), handler::findAllDietsByNutritionName)
                 .andRoute(POST(DIET_URI).and(accept(json)), handler::saveDiet)
+                .andRoute(DELETE(DIET_URI ).and(accept(json)), handler::deleteAllDiets)
                 .andRoute(DELETE(DIET_URI + "/{id}").and(accept(json)), handler::deleteDietById)
-                .andRoute(DELETE(DIET_URI + "/user/{username}").and(accept(json)), handler::deleteDietByUsername)
-                .andRoute(DELETE(DIET_URI ).and(accept(json)), handler::deleteAllDiets);
+                .andRoute(DELETE(DIET_URI + "/user/{username}").and(accept(json)), handler::deleteDietByUsername);
     }
 
     @Bean
@@ -41,12 +41,12 @@ public class Router {
                 .andRoute(GET(ACTIVITY_URI + "/{id}").and(accept(json)), handler::findActivityById)
                 .andRoute(GET(ACTIVITY_URI + "/user/{username}").and(accept(json)), handler::findAllActivitiesByUsername)
                 .andRoute(GET(ACTIVITY_URI + "/user/{username}/sumcalday").and(accept(json)), handler::sumCalBurnedOnCurrentDay)
-                .andRoute(GET(ACTIVITY_URI + "/user/{username}/avgcalweek").and(accept(json)), handler::avgCalBurnedOnCurrentWeek)
                 .andRoute(GET(ACTIVITY_URI + "/user/{username}/avgcal").and(accept(json)), handler::avgCalBurnedBetweenDates)
+                .andRoute(GET(ACTIVITY_URI + "/user/{username}/avgcalweek").and(accept(json)), handler::avgCalBurnedOnCurrentWeek)
                 .andRoute(GET(ACTIVITY_URI + "/exercise/{exerciseCompcode}").and(accept(json)), handler::findAllActivitiesByExerciseCompcode)
                 .andRoute(POST(ACTIVITY_URI).and(accept(json)), handler::saveActivity)
+                .andRoute(DELETE(ACTIVITY_URI ).and(accept(json)), handler::deleteAllActivities)
                 .andRoute(DELETE(ACTIVITY_URI + "/{id}").and(accept(json)), handler::deleteActivityById)
-                .andRoute(DELETE(ACTIVITY_URI + "/user/{username}").and(accept(json)), handler::deleteActivityByUsername)
-                .andRoute(DELETE(ACTIVITY_URI ).and(accept(json)), handler::deleteAllActivities);
+                .andRoute(DELETE(ACTIVITY_URI + "/user/{username}").and(accept(json)), handler::deleteActivityByUsername);
     }
 }

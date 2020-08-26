@@ -61,7 +61,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(2)
     public void findById_test() {
         String actualId = "1";
         User actualUser = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
@@ -79,7 +78,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(3)
     public void findAllByUsername_test() {
         String actualUsername1 = "eightman";
         User actualUser = new User(actualUsername1, "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
@@ -99,7 +97,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(4)
     public void findAllByExerciseCompcode_test() {
         String actualCompcode = "12120";
         User actualUser1 = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
@@ -120,7 +117,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(5)
     public void sumCaloriesOnCurrentDay_test() {
         LocalDateTime expectedNow = LocalDateTime.now();
         Double expectedCaloriesBurned1 = 56.69;
@@ -144,7 +140,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(6)
     public void avgCaloriesOnCurrentWeek_test() {
         LocalDateTime expectedNow = LocalDateTime.now();
         LocalDate starting = expectedNow.toLocalDate().with(DayOfWeek.MONDAY);
@@ -170,7 +165,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(7)
     public void avgCaloriesBetweenDates_test() {
         LocalDateTime expectedNow = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -199,7 +193,6 @@ public class ActivityServiceUnitTesting {
     }
 
     @Test
-    @Order(8)
     public void findAll_test() {
         User actualUser = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
                                    LocalDate.of(2003, 8, 8));
