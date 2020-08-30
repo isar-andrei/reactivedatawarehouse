@@ -1,7 +1,7 @@
 package com.ai.dwsprintreactive.testing;
 
-import com.ai.dwsprintreactive.model.Activity;
-import com.ai.dwsprintreactive.model.Exercise;
+import com.ai.dwsprintreactive.model.Diet;
+import com.ai.dwsprintreactive.model.Nutrition;
 import com.ai.dwsprintreactive.model.User;
 import com.ai.dwsprintreactive.repository.ActivityRepository;
 import com.ai.dwsprintreactive.rest.Router;
@@ -33,12 +33,12 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.ai.dwsprintreactive.rest.RestURIs.ACTIVITY_URI;
+import static com.ai.dwsprintreactive.rest.RestURIs.DIET_URI;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {Router.class, ActivityHandler.class, DietHandler.class})
 @WebFluxTest
-public class ActivityRouterTest {
+public class DietRouterTest {
 
     @Autowired
     private ApplicationContext context;
@@ -86,113 +86,114 @@ public class ActivityRouterTest {
     }
 
     @Test
-    public void findAllActivities_test() {
+    public void findAllDiets_test() {
         User actualUser = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
                                    LocalDate.of(2003, 8, 8));
-        Exercise actualExercise = new Exercise("12120", 14.5, "running", "running, 10 mph (6 min/mile)");
-        Activity actualActivity1 = new Activity("1", actualExercise, actualUser, 40, 56.69, LocalDateTime.now());
-        Activity actualActivity2 = new Activity("2", actualExercise, actualUser, 35, 553.3, LocalDateTime.now());
-        Activity actualActivity3 = new Activity("3", actualExercise, actualUser, 5, 42.69, LocalDateTime.now());
+        Nutrition actualNutrition = new Nutrition("pizza", 300.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        Diet actualDiet1 = new Diet("1", actualNutrition, actualUser, 4.0, 567.0, LocalDateTime.now());
+        Diet actualDiet2 = new Diet("2", actualNutrition, actualUser, 3.0, 123.4, LocalDateTime.now());
+        Diet actualDiet3 = new Diet("3", actualNutrition, actualUser, 5.0, 854.4, LocalDateTime.now());
 
-        BDDMockito.when(activityService.findAll()).thenReturn(Flux.just(actualActivity1, actualActivity2, actualActivity3));
+        BDDMockito
+                .when(dietService.findAll()).thenReturn(Flux.just(actualDiet1, actualDiet2, actualDiet3));
 
         webTestClient.get()
-                .uri(ACTIVITY_URI)
+                .uri(DIET_URI)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(Activity.class)
-                .value(activityResponse -> {
-                    Assertions.assertEquals(3, activityResponse.size());
-                    Assertions.assertEquals(actualUser, activityResponse.get(0).getUser());
-                    Assertions.assertEquals(actualUser, activityResponse.get(1).getUser());
-                    Assertions.assertEquals(actualUser, activityResponse.get(2).getUser());
-                    Assertions.assertEquals(actualExercise, activityResponse.get(0).getExercise());
-                    Assertions.assertEquals(actualExercise, activityResponse.get(1).getExercise());
-                    Assertions.assertEquals(actualExercise, activityResponse.get(2).getExercise());
+                .expectBodyList(Diet.class)
+                .value(dietResponse -> {
+                    Assertions.assertEquals(3, dietResponse.size());
+                    Assertions.assertEquals(actualUser, dietResponse.get(0).getUser());
+                    Assertions.assertEquals(actualUser, dietResponse.get(1).getUser());
+                    Assertions.assertEquals(actualUser, dietResponse.get(2).getUser());
+                    Assertions.assertEquals(actualNutrition, dietResponse.get(0).getNutrition());
+                    Assertions.assertEquals(actualNutrition, dietResponse.get(1).getNutrition());
+                    Assertions.assertEquals(actualNutrition, dietResponse.get(2).getNutrition());
                 });
     }
 
     @Test
-    public void findActivityById_test() {
+    public void findDietById_test() {
         String actualId = "1";
         User actualUser = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
                                    LocalDate.of(2003, 8, 8));
-        Exercise actualExercise = new Exercise("07040", 1.3, "inactivity quiet/light", "soccer, standing quietly, standing in a line");
-        Activity actualActivity = new Activity(actualId, actualExercise, actualUser, 40, 56.69, LocalDateTime.now());
+        Nutrition actualNutrition = new Nutrition("pizza", 300.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        Diet actualDiet = new Diet(actualId, actualNutrition, actualUser, 4.0, 567.0, LocalDateTime.now());
 
-        BDDMockito.when(activityService.findById(ArgumentMatchers.anyString())).thenReturn(Mono.just(actualActivity));
+        BDDMockito.when(dietService.findById(ArgumentMatchers.anyString())).thenReturn(Mono.just(actualDiet));
 
         webTestClient.get()
-                .uri(ACTIVITY_URI + "/" + actualId)
+                .uri(DIET_URI + "/" + actualId)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(Activity.class)
-                .value(activityResponse -> {
-                    Assertions.assertEquals(actualId, activityResponse.getId());
-                    Assertions.assertEquals(actualUser, activityResponse.getUser());
-                    Assertions.assertEquals(actualExercise, activityResponse.getExercise());
+                .expectBody(Diet.class)
+                .value(dietResponse -> {
+                    Assertions.assertEquals(actualId, dietResponse.getId());
+                    Assertions.assertEquals(actualUser, dietResponse.getUser());
+                    Assertions.assertEquals(actualNutrition, dietResponse.getNutrition());
                 });
     }
 
     @Test
-    public void findAllActivitiesByUsername_test() {
+    public void findAllDietsByUsername_test() {
         String actualUsername = "eightman";
         User actualUser = new User(actualUsername, "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
                                    LocalDate.of(2003, 8, 8));
-        Exercise actualExercise1 = new Exercise("12120", 14.5, "running", "running, 10 mph (6 min/mile)");
-        Exercise actualExercise2 = new Exercise("07040", 1.3, "inactivity quiet/light", "soccer, standing quietly, standing in a line");
-        Activity actualActivity1 = new Activity("1", actualExercise1, actualUser, 40, 56.69, LocalDateTime.now());
-        Activity actualActivity2 = new Activity("2", actualExercise2, actualUser, 35, 553.3, LocalDateTime.now());
+        Nutrition actualNutrition1 = new Nutrition("pizza", 300.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        Nutrition actualNutrition2 = new Nutrition("burger", 500.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        Diet actualDiet1 = new Diet("1", actualNutrition1, actualUser, 4.0, 567.0, LocalDateTime.now());
+        Diet actualDiet2 = new Diet("2", actualNutrition2, actualUser, 3.0, 1500.3, LocalDateTime.now());
 
-        BDDMockito.when(activityService.findAllByUsername(ArgumentMatchers.anyString())).thenReturn(Flux.just(actualActivity1, actualActivity2));
+        BDDMockito.when(dietService.findAllByUsername(ArgumentMatchers.anyString())).thenReturn(Flux.just(actualDiet1, actualDiet2));
 
         webTestClient.get()
-                .uri(ACTIVITY_URI + "/user/" + actualUsername)
+                .uri(DIET_URI + "/user/" + actualUsername)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(Activity.class)
-                .value(activityResponse -> {
-                    Assertions.assertEquals(2, activityResponse.size());
-                    Assertions.assertEquals(actualExercise1, activityResponse.get(0).getExercise());
-                    Assertions.assertEquals(actualExercise2, activityResponse.get(1).getExercise());
+                .expectBodyList(Diet.class)
+                .value(dietResponse -> {
+                    Assertions.assertEquals(2, dietResponse.size());
+                    Assertions.assertEquals(actualNutrition1, dietResponse.get(0).getNutrition());
+                    Assertions.assertEquals(actualNutrition2, dietResponse.get(1).getNutrition());
                 });
     }
 
     @Test
-    public void findAllActivitiesByExerciseCompcode_test() {
-        String actualCompcode = "12120";
+    public void findAllDietsByNutritionName_test() {
+        String actualName = "pizza";
         User actualUser1 = new User("eightman", "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
                                     LocalDate.of(2003, 8, 8));
         User actualUser2 = new User("sakisaki", "さき", "かわさき", 58.7, 1.66, "FEMALE", "lovetaishi@gmail.com",
                                     LocalDate.of(2003, 4, 23));
-        Exercise actualExercise = new Exercise(actualCompcode, 14.5, "running", "running, 10 mph (6 min/mile)");
-        Activity actualActivity1 = new Activity("1", actualExercise, actualUser1, 40, 56.69, LocalDateTime.now());
-        Activity actualActivity2 = new Activity("2", actualExercise, actualUser2, 35, 553.3, LocalDateTime.now());
+        Nutrition actualNutrition = new Nutrition(actualName, 300.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        Diet actualDiet1 = new Diet("1", actualNutrition, actualUser1, 4.0, 567.0, LocalDateTime.now());
+        Diet actualDiet2 = new Diet("2", actualNutrition, actualUser2, 3.0, 1500.3, LocalDateTime.now());
 
-        BDDMockito.when(activityService.findAllByExerciseCompcode(ArgumentMatchers.anyString())).thenReturn(Flux.just(actualActivity1, actualActivity2));
+        BDDMockito.when(dietService.findAllByNutritionName(ArgumentMatchers.anyString())).thenReturn(Flux.just(actualDiet1, actualDiet2));
 
         webTestClient.get()
-                .uri(ACTIVITY_URI + "/exercise/" + actualCompcode)
+                .uri(DIET_URI + "/nutrition/" + actualName)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(Activity.class)
-                .value(activityResponse -> {
-                    Assertions.assertEquals(2, activityResponse.size());
-                    Assertions.assertEquals(actualExercise, activityResponse.get(0).getExercise());
-                    Assertions.assertEquals(actualExercise, activityResponse.get(1).getExercise());
+                .expectBodyList(Diet.class)
+                .value(dietResponse -> {
+                    Assertions.assertEquals(2, dietResponse.size());
+                    Assertions.assertEquals(actualNutrition, dietResponse.get(0).getNutrition());
+                    Assertions.assertEquals(actualNutrition, dietResponse.get(1).getNutrition());
                 });
     }
 
     @Test
-    public void deleteAllActivities_test() {
-       BDDMockito.when(activityService.deleteAll()).thenReturn(Mono.empty());
+    public void deleteAllDiets_test() {
+        BDDMockito.when(dietService.deleteAll()).thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri(ACTIVITY_URI)
+                .uri(DIET_URI)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
@@ -201,12 +202,12 @@ public class ActivityRouterTest {
     }
 
     @Test
-    public void deleteActivityById_test() {
+    public void deleteDietById_test() {
         String actualId = "1";
-        BDDMockito.when(activityService.deleteById(ArgumentMatchers.anyString())).thenReturn(Mono.empty());
+        BDDMockito.when(dietService.deleteById(ArgumentMatchers.anyString())).thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri(ACTIVITY_URI + "/" + actualId)
+                .uri(DIET_URI + "/" + actualId)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
@@ -215,12 +216,12 @@ public class ActivityRouterTest {
     }
 
     @Test
-    public void deleteActivityByUsername_test() {
+    public void deleteDietByUsername_test() {
         String actualUsername = "eightman";
-        BDDMockito.when(activityService.deleteByUsername(ArgumentMatchers.anyString())).thenReturn(Mono.empty());
+        BDDMockito.when(dietService.deleteByUsername(ArgumentMatchers.anyString())).thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri(ACTIVITY_URI + "/user/" + actualUsername)
+                .uri(DIET_URI + "/user/" + actualUsername)
                 .accept(json)
                 .exchange()
                 .expectStatus().isOk()
