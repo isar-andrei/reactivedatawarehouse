@@ -1,6 +1,6 @@
 package com.ai.etl.controller;
 
-import com.ai.etl.domain.Activity;
+import com.ai.etl.domain.ExercisePerformed;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,39 +17,42 @@ import java.util.Optional;
 public class ActivityEtl extends AbstractEtl {
 
     @PostMapping("/etl/activities")
-    public Flux<Activity> insert(
+    public Flux<ExercisePerformed> insert(
             @RequestParam(value = "starting") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starting,
             @RequestParam(value = "ending", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> ending
     ) {
         return readWebClient.get()
                 .uri("/api/exercises/tracker")
                 .retrieve()
-                .bodyToFlux(Activity.class)
+                .bodyToFlux(ExercisePerformed.class)
                 .filter(exercisePerformed -> exercisePerformed.getDate().toLocalDate().isAfter(starting))
                 .filter(exercisePerformed -> ending.map(exercisePerformed.getDate().toLocalDate()::isBefore)
                         .orElse(true))
-                .flatMap(activity -> writeWebClient.post()
+                .flatMap(exercisePerformed -> writeWebClient.post()
                         .uri("/api/activities")
                         .contentType(json)
                         .body(BodyInserters.fromValue("{" +
                                                       "\"exercise\":{" +
-                                                      "\"compcode\":\"" + activity.getExercise().getCode() + "\"," +
-                                                      "\"met\":" + activity.getExercise().getMet() + "," +
-                                                      "\"category\":\"" + activity.getExercise().getCategory() + "\"," +
-                                                      "\"description\":\"" + activity.getExercise().getDescription() + "\"" +
+                                                      "\"compcode\":\"" + exercisePerformed.getExercise().getCode() + "\"," +
+                                                      "\"met\":" + exercisePerformed.getExercise().getMet() + "," +
+                                                      "\"category\":\"" + exercisePerformed
+                                                              .getExercise().getCategory() + "\"," +
+                                                      "\"description\":\"" + exercisePerformed
+                                                              .getExercise().getDescription() + "\"" +
                                                       "}," +
                                                       "\"user\":{" +
-                                                      "\"username\":\"" + activity.getUser().getUsername() + "\"," +
-                                                      "\"firstName\":\"" + activity.getUser().getFirstname() + "\"," +
-                                                      "\"lastName\":\"" + activity.getUser().getLastname() + "\"," +
-                                                      "\"weight\":" + activity.getUser().getWeight() + "," +
-                                                      "\"height\":" + activity.getUser().getHeight() + "," +
-                                                      "\"gender\":\"" + activity.getUser().getGender() + "\"," +
-                                                      "\"birthday\":\"" + activity.getUser().getBirthday().toLocalDate().toString() + "\"," +
-                                                      "\"email\":\"" + activity.getUser().getEmail() + "\"" +
+                                                      "\"username\":\"" + exercisePerformed.getUser().getUsername() + "\"," +
+                                                      "\"firstName\":\"" + exercisePerformed.getUser().getFirstname() + "\"," +
+                                                      "\"lastName\":\"" + exercisePerformed.getUser().getLastname() + "\"," +
+                                                      "\"weight\":" + exercisePerformed.getUser().getWeight() + "," +
+                                                      "\"height\":" + exercisePerformed.getUser().getHeight() + "," +
+                                                      "\"gender\":\"" + exercisePerformed.getUser().getGender() + "\"," +
+                                                      "\"birthday\":\"" + exercisePerformed.getUser().getBirthday().toLocalDate().toString() + "\"," +
+                                                      "\"email\":\"" + exercisePerformed.getUser().getEmail() + "\"" +
                                                       "}," +
-                                                      "\"duration\":" + activity.getTime() + "," +
-                                                      "\"createdAt\":\"" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(activity.getDate()) + "\"" +
+                                                      "\"duration\":" + exercisePerformed.getTime() + "," +
+                                                      "\"createdAt\":\"" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(
+                                exercisePerformed.getDate()) + "\"" +
                                                       "}"))
                         .exchange()
                         .flatMap(clientResponse -> {
@@ -57,7 +60,7 @@ public class ActivityEtl extends AbstractEtl {
                                 clientResponse.body((clientHttpResponse, context) -> clientHttpResponse
                                         .getBody());
                             }
-                            return clientResponse.bodyToMono(Activity.class);
+                            return clientResponse.bodyToMono(ExercisePerformed.class);
                         })
                 );
     }

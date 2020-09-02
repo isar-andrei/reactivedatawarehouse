@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Activity {
+public class ExercisePerformed {
 
     private UUID id;
 
