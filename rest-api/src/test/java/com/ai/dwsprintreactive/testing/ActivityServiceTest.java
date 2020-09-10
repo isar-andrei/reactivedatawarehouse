@@ -39,6 +39,29 @@ public class ActivityServiceTest {
     @BeforeAll
     public static void setUpClass() {
         BlockHound.install();
+    } // activate BlockHound
+
+    @Test
+    public void sumCaloriesOnCurrentDay_test() {
+        LocalDateTime expectedNow = LocalDateTime.now();
+        Double expectedCaloriesBurned1 = 56.69;
+        Double expectedCaloriesBurned2 = 553.3;
+        Double expectedCaloriesBurned3 = 42.69;
+        String actualUsername = "eightman";
+        User actualUser = new User(actualUsername, "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
+                                   LocalDate.of(2003, 8, 8));
+        Exercise actualExercise = new Exercise("12120", 14.5, "running", "running, 10 mph (6 min/mile)");
+        Activity actualActivity1 = new Activity("1", actualExercise, actualUser, 40, expectedCaloriesBurned1, expectedNow);
+        Activity actualActivity2 = new Activity("2", actualExercise, actualUser, 35, expectedCaloriesBurned2, expectedNow);
+        Activity actualActivity3 = new Activity("3", actualExercise, actualUser, 5, expectedCaloriesBurned3, expectedNow.minusDays(1));
+
+        BDDMockito.when(repository.findAllByUsername(ArgumentMatchers.anyString()))
+                .thenReturn(Flux.just(actualActivity1, actualActivity2, actualActivity3));
+
+        StepVerifier.create(service.sumCaloriesOnCurrentDay(actualUsername))
+                .expectSubscription()
+                .expectNext(expectedCaloriesBurned1 + expectedCaloriesBurned2)
+                .verifyComplete();
     }
 
     @Test
@@ -58,29 +81,6 @@ public class ActivityServiceTest {
         } catch (Exception e) {
            Assertions.assertTrue(e.getCause() instanceof BlockingOperationError);
         }
-    }
-
-    @Test
-    public void sumCaloriesOnCurrentDay_test() {
-        LocalDateTime expectedNow = LocalDateTime.now();
-        Double expectedCaloriesBurned1 = 56.69;
-        Double expectedCaloriesBurned2 = 553.3;
-        Double expectedCaloriesBurned3 = 42.69;
-        String actualUsername = "eightman";
-        User actualUser = new User(actualUsername, "はちまん", "ひきがや", 62.3, 1.75, "MALE", "sadyahallo@gmail.com",
-                                                      LocalDate.of(2003, 8, 8));
-        Exercise actualExercise = new Exercise("12120", 14.5, "running", "running, 10 mph (6 min/mile)");
-        Activity actualActivity1 = new Activity("1", actualExercise, actualUser, 40, expectedCaloriesBurned1, expectedNow);
-        Activity actualActivity2 = new Activity("2", actualExercise, actualUser, 35, expectedCaloriesBurned2, expectedNow);
-        Activity actualActivity3 = new Activity("3", actualExercise, actualUser, 5, expectedCaloriesBurned3, expectedNow.minusDays(1));
-
-        BDDMockito.when(repository.findAllByUsername(ArgumentMatchers.anyString()))
-                .thenReturn(Flux.just(actualActivity1, actualActivity2, actualActivity3));
-
-        StepVerifier.create(service.sumCaloriesOnCurrentDay(actualUsername))
-                .expectSubscription()
-                .expectNext(expectedCaloriesBurned1 + expectedCaloriesBurned2)
-                .verifyComplete();
     }
 
     @Test

@@ -32,7 +32,7 @@ public class DietServiceImpl implements DietService {
 
     @Override
     public Flux<Diet> findAllByUsername(String username) {
-        return repository.findAllByUsername(username).name("aaaaaaa").tag("key1", "value1").metrics();
+        return repository.findAllByUsername(username);
     }
 
     @Override

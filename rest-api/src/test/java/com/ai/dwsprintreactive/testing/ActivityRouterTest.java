@@ -56,7 +56,7 @@ public class ActivityRouterTest {
 
     private final static MediaType json = MediaType.APPLICATION_JSON;
 
-    @BeforeAll
+    @BeforeAll // Activate BlockHound
     public static void setUp(){
         BlockHound.install();
     }
@@ -64,25 +64,6 @@ public class ActivityRouterTest {
     @BeforeEach
     public void initialize() {
         webTestClient = WebTestClient.bindToApplicationContext(context).build();
-    }
-
-    @Test
-    public void blockhoundWorks() {
-        try {
-            Mono.delay(Duration.ofSeconds(1))
-                    .doOnNext(it -> {
-                        try {
-                            Thread.sleep(10);
-                        }
-                        catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .block();
-            Assertions.fail("Blockhound doesn't work");
-        } catch (Exception e) {
-            Assertions.assertTrue(e.getCause() instanceof BlockingOperationError);
-        }
     }
 
     @Test
@@ -111,6 +92,25 @@ public class ActivityRouterTest {
                     Assertions.assertEquals(actualExercise, activityResponse.get(1).getExercise());
                     Assertions.assertEquals(actualExercise, activityResponse.get(2).getExercise());
                 });
+    }
+
+    @Test // Make sure BlockHound works
+    public void blockhoundWorks() {
+        try {
+            Mono.delay(Duration.ofSeconds(1))
+                    .doOnNext(it -> {
+                        try {
+                            Thread.sleep(10);
+                        }
+                        catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .block();
+            Assertions.fail("Blockhound doesn't work");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getCause() instanceof BlockingOperationError);
+        }
     }
 
     @Test

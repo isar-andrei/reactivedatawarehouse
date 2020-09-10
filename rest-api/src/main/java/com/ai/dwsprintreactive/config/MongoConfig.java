@@ -44,7 +44,6 @@ public class MongoConfig extends AbstractReactiveMongoConfiguration {
         return new MongoCustomConversions(converters);
     }
 
-    // DOESNT WORK
 //        @Override
 //    public boolean autoIndexCreation() {
 //        return true;
